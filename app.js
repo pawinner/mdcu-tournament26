@@ -5,13 +5,16 @@
 // Configuration
 const CONFIG = {
   countdownDuration: 15, // seconds
-  // The user will paste their published Google Sheet CSV URL here in the future.
-  // Example: 'https://docs.google.com/spreadsheets/d/e/2PACX-1v.../pub?output=csv'
+  prelimSheetCsvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShiFlPfYdFdhnR7pMbce-btJ9ZSfXFatonn62ZDvGofF9ldfcuqhLdXgnLWqxmmRT2hGV7fD0RHTyz/pub?gid=0&single=true&output=csv',
+  finalSheetCsvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShiFlPfYdFdhnR7pMbce-btJ9ZSfXFatonn62ZDvGofF9ldfcuqhLdXgnLWqxmmRT2hGV7fD0RHTyz/pub?gid=1034909864&single=true&output=csv',
+  maxTeamsPrelim: 6,
+  maxTeamsFinal: 4,
   googleSheetCsvUrl: '' 
 };
 
 // State Variables
-let activeView = 'home'; // 'home' | 'countdown' | 'scoreboard'
+let activeView = 'home'; // 'home' | 'countdown' | 'scoreboard' | 'jeopardy' | 'question'
+let lastNonScoreboardView = 'home';
 let timerDuration = CONFIG.countdownDuration;
 let timeLeft = CONFIG.countdownDuration;
 let isTimerRunning = false;
@@ -151,6 +154,10 @@ function playChime() {
 function switchView(viewName) {
   if (viewName === activeView) return;
   
+  if (activeView !== 'scoreboard') {
+    lastNonScoreboardView = activeView;
+  }
+  
   // Clean up timers if navigating away
   if (activeView === 'countdown') {
     pauseTimer();
@@ -171,7 +178,7 @@ function switchView(viewName) {
   // Update top-left navigation button text dynamically based on active view
   const navBackText = document.getElementById('nav-back-text');
   if (navBackText) {
-    if (activeView === 'question') {
+    if (activeView === 'question' || activeView === 'scoreboard') {
       navBackText.textContent = 'Jeopardy Board';
     } else if (activeView === 'jeopardy') {
       navBackText.textContent = 'Landing Page';
@@ -315,6 +322,15 @@ function finishTimer() {
 
 // Trigger timer workflow (pressing '1' key)
 function triggerTimerFlow() {
+  const countdownEl = document.getElementById('view-countdown');
+  if (!countdownEl) {
+    // On Final page: if inside Question view, key '1' starts/toggles the 10s question timer!
+    if (activeView === 'question') {
+      toggleModalTimer();
+    }
+    return;
+  }
+  
   if (activeView !== 'countdown') {
     switchView('countdown');
     resetTimer();
@@ -349,14 +365,14 @@ function parseCSVLine(line) {
 }
 
 // Render team list onto table rows
-function renderStandings(standings) {
+function renderStandings(standings, maxTeams = 6) {
   const tbody = document.getElementById('scoreboard-rows');
   if (!tbody) return;
   
   tbody.innerHTML = '';
   
-  // Sort descending by score
-  const sorted = [...standings].sort((a, b) => b.score - a.score);
+  // Sort descending by score and slice to maxTeams
+  const sorted = [...standings].sort((a, b) => b.score - a.score).slice(0, maxTeams);
   
   sorted.forEach((team, index) => {
     const rank = index + 1;
@@ -378,17 +394,22 @@ function renderStandings(standings) {
     tbody.appendChild(tr);
   });
   
-  document.getElementById('last-updated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+  const lastUpdatedEl = document.getElementById('last-updated');
+  if (lastUpdatedEl) {
+    lastUpdatedEl.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+    lastUpdatedEl.style.color = '';
+  }
 }
 
 // Load Scoreboard Core
 async function loadScoreboard() {
-  const url = CONFIG.googleSheetCsvUrl;
+  const isFinalPage = !!document.getElementById('view-jeopardy');
+  const maxTeams = isFinalPage ? CONFIG.maxTeamsFinal : CONFIG.maxTeamsPrelim;
+  const url = CONFIG.googleSheetCsvUrl || (isFinalPage ? CONFIG.finalSheetCsvUrl : CONFIG.prelimSheetCsvUrl);
   
   if (!url) {
-    // No URL configured, load high-fidelity local mock data
     console.log("No Google Sheet CSV URL set. Loading mock data...");
-    renderStandings(MOCK_STANDINGS);
+    renderStandings(MOCK_STANDINGS, maxTeams);
     return;
   }
   
@@ -411,7 +432,6 @@ async function loadScoreboard() {
       });
       if (isHeader && idx === 0) return;
       
-      // Intelligent parser finds team name and score regardless of columns order
       let score = null;
       let teamName = '';
       
@@ -423,7 +443,6 @@ async function loadScoreboard() {
         if (!isNaN(num)) {
           score = num;
         } else {
-          // Keep the longest text cell as the team name to handle potential rank text
           if (!teamName || cleaned.length > teamName.length) {
             teamName = cleaned;
           }
@@ -436,17 +455,15 @@ async function loadScoreboard() {
     });
     
     if (parsedTeams.length > 0) {
-      renderStandings(parsedTeams);
+      renderStandings(parsedTeams, maxTeams);
     } else {
       throw new Error("No teams parsed from published sheet.");
     }
     
   } catch (error) {
     console.error("Failed to load live scoreboard:", error);
-    // Graceful fallback to mock data so display doesn't break during live round
-    renderStandings(MOCK_STANDINGS);
+    renderStandings(MOCK_STANDINGS, maxTeams);
     
-    // Add brief alert indicator in bottom footer
     const refreshText = document.getElementById('last-updated');
     if (refreshText) {
       refreshText.textContent = "Offline Fallback Mode (Loading Mock)";
@@ -476,7 +493,14 @@ window.addEventListener('keydown', (e) => {
       
     case 's':
       e.preventDefault();
-      switchView('scoreboard');
+      if (activeView === 'scoreboard') {
+        const isFinalPage = !!document.getElementById('view-jeopardy');
+        const fallbackView = isFinalPage ? 'jeopardy' : 'home';
+        switchView(lastNonScoreboardView || fallbackView);
+      } else {
+        lastNonScoreboardView = activeView;
+        switchView('scoreboard');
+      }
       break;
       
     case 'h':
@@ -488,6 +512,11 @@ window.addEventListener('keydown', (e) => {
       if (activeView === 'question') {
         e.preventDefault();
         switchView('jeopardy');
+      } else if (activeView === 'scoreboard') {
+        e.preventDefault();
+        const isFinalPage = !!document.getElementById('view-jeopardy');
+        const fallbackView = isFinalPage ? 'jeopardy' : 'home';
+        switchView(lastNonScoreboardView || fallbackView);
       } else if (activeView === 'countdown') {
         e.preventDefault();
         resetTimer();
@@ -548,11 +577,13 @@ window.addEventListener('click', () => {
 const navBackBtn = document.getElementById('nav-back-btn');
 if (navBackBtn) {
   navBackBtn.addEventListener('click', (e) => {
-    if (activeView === 'question') {
+    if (activeView === 'question' || activeView === 'scoreboard') {
       e.preventDefault();
       initAudio();
       playChime();
-      switchView('jeopardy');
+      const isFinalPage = !!document.getElementById('view-jeopardy');
+      const fallbackView = isFinalPage ? 'jeopardy' : 'home';
+      switchView(lastNonScoreboardView || fallbackView);
     } else if (activeView === 'jeopardy') {
       e.preventDefault();
       initAudio();
@@ -797,7 +828,7 @@ function openQuestionModal(card) {
   if (topicEl) topicEl.textContent = topic;
   
   const itemEl = document.getElementById('modal-q-item');
-  if (itemEl) itemEl.textContent = `ITEM NO. ${item}`;
+  if (itemEl) itemEl.textContent = `NO. ${item}`;
   
   const scoreEl = document.getElementById('modal-q-score');
   if (scoreEl) scoreEl.textContent = score;

@@ -59,7 +59,7 @@
         
         <!-- Header -->
         <div class="jeopardy-header">
-          <div class="jeopardy-badge">FINAL ROUND • JEOPARDY STAGE</div>
+          <div class="jeopardy-badge">FINAL ROUND</div>
           <h1 class="view-header" style="font-size: 2.2rem;">THE 4th MDCU MEDICAL TOURNAMENT 2026</h1>
         </div>
 
@@ -200,7 +200,7 @@
         <div class="question-detail-left">
           <div class="modal-badge-row">
             <span class="modal-topic-badge" id="modal-q-topic">Basic Medical Science</span>
-            <span class="modal-item-badge" id="modal-q-item">ITEM NO. 1</span>
+            <span class="modal-item-badge" id="modal-q-item">NO. 1</span>
           </div>
 
           <div class="modal-score-box">
@@ -228,7 +228,7 @@
 
         <!-- Right Side: 10-Second Countdown Timer -->
         <div class="question-timer-right">
-          <div class="modal-timer-header">10-SECOND TIMER</div>
+          <div class="modal-timer-header">TIMER</div>
           
           <div class="modal-timer-ring-container">
             <svg class="modal-timer-ring" width="260" height="260">
@@ -263,6 +263,34 @@
           </div>
         </div>
 
+      </div>
+    </section>
+
+    <!-- VIEW 4: SCOREBOARD -->
+    <section id="view-scoreboard" class="view">
+      <div class="scoreboard-content">
+        <h2 class="view-header">FINAL ROUND</h2>
+        <h3 class="view-subheader">LEADERBOARD</h3>
+        
+        <div class="scoreboard-table-container">
+          <table class="scoreboard-table">
+            <thead>
+              <tr>
+                <th class="col-rank">Rank</th>
+                <th class="col-team">Team Name</th>
+                <th class="col-score">Score</th>
+              </tr>
+            </thead>
+            <tbody id="scoreboard-rows">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="scoreboard-footer">
+          <span class="live-indicator"><span class="live-dot"></span> Live Data</span>
+          <span class="refresh-time" id="last-updated">Last updated: Just now</span>
+        </div>
       </div>
     </section>
 
