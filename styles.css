@@ -1,0 +1,622 @@
+/* -------------------------------------------------------------
+ * MDCU Medical Tournament 2026 - Styling Guide & Themes
+ * ------------------------------------------------------------- */
+
+/* Design Variables */
+:root {
+  --bg-primary: #02090d;
+  --bg-teal-dark: #021b1e;
+  --bg-purple-dark: #110620;
+  
+  /* Accent Neon Colors */
+  --neon-cyan: #00ffd2;
+  --neon-cyan-glow: #00e5ff;
+  --neon-purple: #c026d3;
+  --neon-pink: #ff007f;
+  --neon-green: #00ff66;
+  
+  /* Text colors */
+  --text-main: #ffffff;
+  --text-secondary: #a3b3bc;
+  --text-muted: #64748b;
+  
+  /* Fonts */
+  --font-main: 'Prompt', sans-serif;
+  --font-title: 'Orbitron', sans-serif;
+}
+
+/* Reset & Base Rules */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-main);
+}
+
+/* Fullscreen Background Decorations */
+.bg-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--bg-teal-dark) 0%, #031016 40%, var(--bg-purple-dark) 100%);
+  z-index: 1;
+}
+
+.grid-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(0, 255, 210, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 210, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: center center;
+  z-index: 2;
+}
+
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(150px);
+  opacity: 0.15;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.orb-cyan {
+  width: 50vw;
+  height: 50vw;
+  background: var(--neon-cyan-glow);
+  top: -10%;
+  left: -10%;
+  animation: orbFloat 25s infinite alternate ease-in-out;
+}
+
+.orb-purple {
+  width: 60vw;
+  height: 60vw;
+  background: var(--neon-purple);
+  bottom: -20%;
+  right: -10%;
+  animation: orbFloat 35s infinite alternate-reverse ease-in-out;
+}
+
+@keyframes orbFloat {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(5%, 8%) scale(1.1); }
+}
+
+/* Heartbeat ECG Line Overlay */
+.heartbeat-container {
+  position: absolute;
+  bottom: 18%;
+  left: 0;
+  width: 100%;
+  height: 140px;
+  z-index: 1;
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.heartbeat-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.heartbeat-path {
+  fill: none;
+  stroke: var(--neon-cyan);
+  stroke-width: 2.5;
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  animation: ecgStroke 8s linear infinite;
+}
+
+@keyframes ecgStroke {
+  0% {
+    stroke-dashoffset: 1200;
+  }
+  100% {
+    stroke-dashoffset: -1200;
+  }
+}
+
+/* Main Views Controller */
+#app-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+/* Base View styling */
+.view {
+  position: absolute;
+  width: 90%;
+  max-width: 1280px;
+  height: calc(100% - 120px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.95);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.view.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+/* -------------------------------------------------------------
+ * VIEW 1: HOMEPAGE
+ * ------------------------------------------------------------- */
+.home-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-wrapper {
+  margin-bottom: 30px;
+  position: relative;
+  display: inline-block;
+  padding: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 255, 210, 0.15) 0%, transparent 70%);
+}
+
+.congress-logo {
+  height: 150px;
+  width: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 
+    0 0 15px rgba(255, 255, 255, 0.5), 
+    0 0 30px var(--neon-cyan-glow);
+  animation: logoPulse 4s infinite alternate ease-in-out;
+}
+
+@keyframes logoPulse {
+  0% { transform: scale(1); box-shadow: 0 0 15px rgba(255, 255, 255, 0.4), 0 0 25px rgba(0, 229, 255, 0.4); }
+  100% { transform: scale(1.04); box-shadow: 0 0 25px rgba(255, 255, 255, 0.6), 0 0 45px rgba(0, 229, 255, 0.7); }
+}
+
+.tournament-title {
+  font-family: var(--font-title);
+  color: var(--text-main);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.tournament-title .prefix {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: 8px;
+}
+
+.tournament-title .highlight {
+  display: inline-block;
+  font-size: 4.8rem;
+  font-weight: 900;
+  color: var(--text-main);
+  background: linear-gradient(90deg, #ffffff, var(--neon-cyan), var(--neon-cyan-glow));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.5));
+  margin: 5px 0;
+  letter-spacing: 4px;
+}
+
+.tournament-title .suffix {
+  display: block;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 5px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.pulse-line {
+  width: 180px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-cyan-glow), transparent);
+  border-radius: 2px;
+  margin: 15px 0 25px 0;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+  animation: widthPulse 3s infinite ease-in-out;
+}
+
+@keyframes widthPulse {
+  0%, 100% { width: 150px; opacity: 0.6; }
+  50% { width: 250px; opacity: 1; }
+}
+
+.tournament-details {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--neon-pink);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(255, 0, 127, 0.3);
+  margin-top: 60px;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 5;
+}
+
+/* -------------------------------------------------------------
+ * VIEW 2: COUNTDOWN TIMER
+ * ------------------------------------------------------------- */
+.countdown-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.view-header {
+  font-family: var(--font-title);
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: 6px;
+  background: linear-gradient(90deg, var(--neon-cyan), #fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(0, 255, 210, 0.3));
+}
+
+.view-subheader {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 5px;
+  margin-top: 5px;
+  margin-bottom: 40px;
+  text-transform: uppercase;
+}
+
+.timer-display-container {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(2, 8, 14, 0.45) 0%, rgba(2, 8, 14, 0.25) 65%, transparent 72%);
+  backdrop-filter: blur(10px);
+}
+
+.progress-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotate(-90deg); /* Start progress at the top */
+}
+
+.progress-ring-bar {
+  transition: stroke-dashoffset 0.1s linear;
+  filter: drop-shadow(0 0 8px var(--neon-cyan-glow));
+}
+
+.timer-digits {
+  font-family: var(--font-title);
+  font-size: 8.5rem;
+  font-weight: 900;
+  color: #ffffff;
+  z-index: 5;
+  text-shadow: 
+    0 0 20px rgba(255, 255, 255, 0.2),
+    0 0 40px var(--neon-cyan-glow);
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+/* States for countdown timer visual cues */
+.timer-running .timer-digits {
+  text-shadow: 
+    0 0 25px rgba(255, 255, 255, 0.2),
+    0 0 50px var(--neon-cyan-glow);
+}
+
+.timer-warning .timer-digits {
+  color: var(--neon-pink);
+  text-shadow: 
+    0 0 25px rgba(255, 0, 127, 0.3),
+    0 0 50px var(--neon-pink);
+  animation: digitPanic 0.5s infinite alternate ease-in-out;
+}
+
+.timer-warning .progress-ring-bar {
+  stroke: var(--neon-pink) !important;
+  filter: drop-shadow(0 0 12px var(--neon-pink));
+}
+
+.timer-finished .timer-digits {
+  color: #ff0033;
+  text-shadow: 
+    0 0 30px rgba(255, 0, 0, 0.4),
+    0 0 60px #ff0033;
+  animation: digitFlash 0.4s infinite alternate ease-in-out;
+}
+
+.timer-finished .progress-ring-bar {
+  stroke: #ff0033 !important;
+  filter: drop-shadow(0 0 15px #ff0033);
+}
+
+@keyframes digitPanic {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
+@keyframes digitFlash {
+  0% { opacity: 0.3; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1.05); }
+}
+
+.timer-status {
+  font-family: var(--font-title);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--neon-cyan);
+  background: rgba(0, 255, 210, 0.05);
+  border: 1px solid rgba(0, 255, 210, 0.2);
+  padding: 8px 30px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.timer-running .timer-status {
+  color: var(--neon-green);
+  background: rgba(0, 255, 102, 0.05);
+  border-color: rgba(0, 255, 102, 0.2);
+  box-shadow: 0 0 10px rgba(0, 255, 102, 0.1);
+}
+
+.timer-paused .timer-status {
+  color: #eab308;
+  background: rgba(234, 179, 8, 0.05);
+  border-color: rgba(234, 179, 8, 0.2);
+}
+
+.timer-finished .timer-status {
+  color: #ff0033;
+  background: rgba(255, 0, 51, 0.08);
+  border-color: rgba(255, 0, 51, 0.3);
+  box-shadow: 0 0 15px rgba(255, 0, 51, 0.2);
+}
+
+/* -------------------------------------------------------------
+ * VIEW 3: SCOREBOARD
+ * ------------------------------------------------------------- */
+.scoreboard-content {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.scoreboard-table-container {
+  width: 100%;
+  background: rgba(5, 18, 25, 0.45);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  margin-bottom: 25px;
+}
+
+.scoreboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.scoreboard-table th {
+  padding: 20px 30px;
+  font-family: var(--font-title);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-secondary);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.scoreboard-table td {
+  padding: 18px 30px;
+  font-size: 1.15rem;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  transition: all 0.3s ease;
+}
+
+.scoreboard-table tbody tr {
+  animation: slideInRow 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes slideInRow {
+  0% { transform: translateY(15px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Stagger animations for rows using JS-added custom property */
+.scoreboard-table tbody tr:hover {
+  background: rgba(0, 255, 210, 0.03);
+}
+
+/* Specific column styles */
+.col-rank {
+  width: 15%;
+  text-align: center;
+  font-family: var(--font-title);
+  font-weight: 700;
+}
+
+.col-team {
+  width: 60%;
+}
+
+.col-score {
+  width: 25%;
+  text-align: right;
+  font-family: var(--font-title);
+  font-weight: 700;
+  color: var(--neon-cyan);
+}
+
+/* Rank Glow styles */
+tr.rank-1 {
+  background: linear-gradient(90deg, rgba(234, 179, 8, 0.06) 0%, transparent 100%);
+}
+tr.rank-1 td {
+  font-weight: 800;
+}
+tr.rank-1 .col-rank span {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #eab308;
+  color: #000;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.4);
+}
+tr.rank-1 .col-score {
+  color: #eab308;
+  text-shadow: 0 0 8px rgba(234, 179, 8, 0.3);
+}
+
+tr.rank-2 {
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.06) 0%, transparent 100%);
+}
+tr.rank-2 .col-rank span {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #94a3b8;
+  color: #000;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(148, 163, 184, 0.3);
+}
+tr.rank-2 .col-score {
+  color: #cbd5e1;
+}
+
+tr.rank-3 {
+  background: linear-gradient(90deg, rgba(180, 83, 9, 0.06) 0%, transparent 100%);
+}
+tr.rank-3 .col-rank span {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #b45309;
+  color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(180, 83, 9, 0.3);
+}
+tr.rank-3 .col-score {
+  color: #d97706;
+}
+
+.scoreboard-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--neon-green);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--neon-green);
+  animation: pulseDot 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+.refresh-time {
+  color: var(--text-muted);
+}
+
+
+
+/* -------------------------------------------------------------
+ * INTERACTIVE AUDIO INDICATOR
+ * ------------------------------------------------------------- */
+#audio-indicator {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  z-index: 100;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.audio-indicator-muted {
+  color: var(--text-muted);
+}
+
+.audio-indicator-active {
+  color: var(--neon-green);
+  border-color: rgba(0, 255, 102, 0.2);
+  background: rgba(0, 255, 102, 0.03);
+  box-shadow: 0 0 10px rgba(0, 255, 102, 0.05);
+}
+
+#audio-indicator:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
