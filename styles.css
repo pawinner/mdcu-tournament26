@@ -380,14 +380,7 @@ html, body {
 }
 
 .card-topic-label {
-  font-family: var(--font-main);
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  text-align: center;
-  margin-top: 2px;
+  display: none;
 }
 
 /* Score-tier specific neon styling for unclicked cards */
@@ -877,10 +870,12 @@ tr.rank-3 .col-score {
   letter-spacing: 0.5px;
   z-index: 100;
   backdrop-filter: blur(10px);
+  opacity: 0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-back-home:hover {
+  opacity: 1;
   color: var(--neon-cyan);
   border-color: var(--neon-cyan);
   box-shadow: 0 0 15px rgba(0, 255, 210, 0.2);
@@ -1239,14 +1234,7 @@ tr.rank-3 .col-score {
 }
 
 .card-topic-label {
-  font-family: var(--font-main);
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  text-align: center;
-  margin-top: 2px;
+  display: none;
 }
 
 /* Score-tier specific neon styling */
