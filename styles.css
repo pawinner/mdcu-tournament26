@@ -538,6 +538,7 @@ html, body {
   border-radius: 50%;
   background: radial-gradient(circle, rgba(2, 8, 14, 0.45) 0%, rgba(2, 8, 14, 0.25) 65%, transparent 72%);
   backdrop-filter: blur(10px);
+  overflow: visible;
 }
 
 .progress-ring {
@@ -545,11 +546,12 @@ html, body {
   top: 0;
   left: 0;
   transform: rotate(-90deg); /* Start progress at the top */
+  overflow: visible;
 }
 
 .progress-ring-bar {
   transition: stroke-dashoffset 0.1s linear;
-  filter: drop-shadow(0 0 8px var(--neon-cyan-glow));
+  filter: drop-shadow(0 0 12px var(--neon-cyan-glow));
 }
 
 .timer-digits {
@@ -1438,15 +1440,17 @@ tr.rank-3 .col-score {
   justify-content: center;
   align-items: center;
   margin-bottom: 20px;
+  overflow: visible;
 }
 
 .modal-timer-ring {
   transform: rotate(-90deg);
+  overflow: visible;
 }
 
 .modal-ring-bar {
   transition: stroke-dashoffset 0.1s linear;
-  filter: drop-shadow(0 0 10px var(--neon-cyan-glow));
+  filter: drop-shadow(0 0 14px var(--neon-cyan-glow));
 }
 
 .modal-timer-digits {
