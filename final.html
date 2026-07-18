@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MDCU Tournament 2026 - Final Round</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Prompt:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Navigation Link Back to Home Portal / Landing Page -->
+  <a href="index.html" class="nav-back-home" id="nav-back-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+    <span id="nav-back-text">Home Portal</span>
+  </a>
+
+  <!-- Background Decorative Grid and Glowing Orbs -->
+  <div class="bg-decorations">
+    <div class="grid-overlay"></div>
+    <div class="glow-orb orb-cyan"></div>
+    <div class="glow-orb orb-purple"></div>
+  </div>
+
+  <!-- SVG Heartbeat Line (ECG) Overlay -->
+  <div class="heartbeat-container">
+    <svg viewBox="0 0 1200 200" class="heartbeat-svg" preserveAspectRatio="none">
+      <path class="heartbeat-path" d="M 0,100 L 300,100 L 320,80 L 340,120 L 360,100 L 400,100 L 410,30 L 430,170 L 450,100 L 500,100 L 510,85 L 520,115 L 530,100 L 800,100 L 810,40 L 830,165 L 845,100 L 900,100 L 920,80 L 940,120 L 960,100 L 1200,100" />
+    </svg>
+  </div>
+
+  <!-- Main Container -->
+  <main id="app-container">
+
+    <!-- VIEW 1: FINAL ROUND LANDING PAGE -->
+    <section id="view-home" class="view active">
+      <div class="home-content">
+        <!-- Secret click trigger on MDCU logo (no visual button indicators) -->
+        <div class="logo-wrapper secret-trigger" id="logo-trigger" title="MDCU Congress Logo">
+          <img src="assets/images/congresslogo.jpg" alt="MDCU Congress Logo" class="congress-logo">
+        </div>
+        <h1 class="tournament-title">
+          <span class="prefix">THE 4th</span>
+          <span class="highlight">MDCU</span>
+          <span class="suffix">MEDICAL TOURNAMENT 2026</span>
+        </h1>
+        <div class="pulse-line"></div>
+        <p class="tournament-details">24 JULY 2026 • FINAL ROUND</p>
+      </div>
+    </section>
+
+    <!-- VIEW 2: FINAL ROUND JEOPARDY BOARD -->
+    <section id="view-jeopardy" class="view">
+      <div class="jeopardy-container">
+        
+        <!-- Header -->
+        <div class="jeopardy-header">
+          <div class="jeopardy-badge">FINAL ROUND • JEOPARDY STAGE</div>
+          <h1 class="view-header" style="font-size: 2.2rem;">THE 4th MDCU MEDICAL TOURNAMENT 2026</h1>
+        </div>
+
+        <!-- 3-Column Jeopardy Grid -->
+        <div class="jeopardy-grid">
+
+          <!-- TOPIC 1: Basic Medical Science -->
+          <div class="jeopardy-column">
+            <div class="topic-card">
+              <div class="topic-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              <h2 class="topic-title">Basic Medical Science</h2>
+            </div>
+
+            <!-- Q1: 100 -->
+            <button class="jeopardy-card" data-topic="Basic Medical Science" data-item="1" data-score="100">
+              <div class="card-item-tag">NO. 1</div>
+              <div class="card-score-value">100</div>
+              <div class="card-topic-label">Basic Medical Science</div>
+            </button>
+
+            <!-- Q2: 200 -->
+            <button class="jeopardy-card" data-topic="Basic Medical Science" data-item="2" data-score="200">
+              <div class="card-item-tag">NO. 2</div>
+              <div class="card-score-value">200</div>
+              <div class="card-topic-label">Basic Medical Science</div>
+            </button>
+
+            <!-- Q3: 200 -->
+            <button class="jeopardy-card" data-topic="Basic Medical Science" data-item="3" data-score="200">
+              <div class="card-item-tag">NO. 3</div>
+              <div class="card-score-value">200</div>
+              <div class="card-topic-label">Basic Medical Science</div>
+            </button>
+
+            <!-- Q4: 250 -->
+            <button class="jeopardy-card" data-topic="Basic Medical Science" data-item="4" data-score="250">
+              <div class="card-item-tag">NO. 4</div>
+              <div class="card-score-value">250</div>
+              <div class="card-topic-label">Basic Medical Science</div>
+            </button>
+          </div>
+
+          <!-- TOPIC 2: Clinical Science -->
+          <div class="jeopardy-column">
+            <div class="topic-card">
+              <div class="topic-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+              </div>
+              <h2 class="topic-title">Clinical Science</h2>
+            </div>
+
+            <!-- Q1: 100 -->
+            <button class="jeopardy-card" data-topic="Clinical Science" data-item="1" data-score="100">
+              <div class="card-item-tag">NO. 1</div>
+              <div class="card-score-value">100</div>
+              <div class="card-topic-label">Clinical Science</div>
+            </button>
+
+            <!-- Q2: 200 -->
+            <button class="jeopardy-card" data-topic="Clinical Science" data-item="2" data-score="200">
+              <div class="card-item-tag">NO. 2</div>
+              <div class="card-score-value">200</div>
+              <div class="card-topic-label">Clinical Science</div>
+            </button>
+
+            <!-- Q3: 200 -->
+            <button class="jeopardy-card" data-topic="Clinical Science" data-item="3" data-score="200">
+              <div class="card-item-tag">NO. 3</div>
+              <div class="card-score-value">200</div>
+              <div class="card-topic-label">Clinical Science</div>
+            </button>
+
+            <!-- Q4: 250 -->
+            <button class="jeopardy-card" data-topic="Clinical Science" data-item="4" data-score="250">
+              <div class="card-item-tag">NO. 4</div>
+              <div class="card-score-value">250</div>
+              <div class="card-topic-label">Clinical Science</div>
+            </button>
+          </div>
+
+          <!-- TOPIC 3: MDCU -->
+          <div class="jeopardy-column">
+            <div class="topic-card">
+              <div class="topic-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              </div>
+              <h2 class="topic-title">MDCU</h2>
+            </div>
+
+            <!-- Q1: 100 -->
+            <button class="jeopardy-card" data-topic="MDCU" data-item="1" data-score="100">
+              <div class="card-item-tag">NO. 1</div>
+              <div class="card-score-value">100</div>
+              <div class="card-topic-label">MDCU</div>
+            </button>
+
+            <!-- Q2: 200 -->
+            <button class="jeopardy-card" data-topic="MDCU" data-item="2" data-score="200">
+              <div class="card-item-tag">NO. 2</div>
+              <div class="card-score-value">200</div>
+              <div class="card-topic-label">MDCU</div>
+            </button>
+
+            <!-- Q3: 200 -->
+            <button class="jeopardy-card" data-topic="MDCU" data-item="3" data-score="200">
+              <div class="card-item-tag">NO. 3</div>
+              <div class="card-score-value">200</div>
+              <div class="card-topic-label">MDCU</div>
+            </button>
+
+            <!-- Q4: 250 -->
+            <button class="jeopardy-card" data-topic="MDCU" data-item="4" data-score="250">
+              <div class="card-item-tag">NO. 4</div>
+              <div class="card-score-value">250</div>
+              <div class="card-topic-label">MDCU</div>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- VIEW 3: QUESTION DETAIL & 10s TIMER -->
+    <section id="view-question" class="view">
+      <div class="modal-question-container">
+        
+        <!-- Left Side: Question Details & Author -->
+        <div class="question-detail-left">
+          <div class="modal-badge-row">
+            <span class="modal-topic-badge" id="modal-q-topic">Basic Medical Science</span>
+            <span class="modal-item-badge" id="modal-q-item">ITEM NO. 1</span>
+          </div>
+
+          <div class="modal-score-box">
+            <span class="modal-score-label">POINTS</span>
+            <span class="modal-score-num" id="modal-q-score">100</span>
+          </div>
+
+          <!-- Author Card -->
+          <div class="author-card">
+            <div class="author-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <div class="author-info">
+              <span class="author-label">อาจารย์ผู้ออกข้อสอบ</span>
+              <span class="author-name" id="modal-q-author">กำลังโหลดข้อมูล...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider Line -->
+        <div class="modal-divider"></div>
+
+        <!-- Right Side: 10-Second Countdown Timer -->
+        <div class="question-timer-right">
+          <div class="modal-timer-header">10-SECOND TIMER</div>
+          
+          <div class="modal-timer-ring-container">
+            <svg class="modal-timer-ring" width="260" height="260">
+              <circle class="progress-ring-bg" stroke="rgba(255, 255, 255, 0.08)" stroke-width="10" fill="rgba(2, 8, 14, 0.3)" r="115" cx="130" cy="130" />
+              <circle class="modal-ring-bar" id="modal-ring-bar" stroke="url(#modal-cyan-gradient)" stroke-width="12" stroke-linecap="round" fill="transparent" r="115" cx="130" cy="130" />
+              <defs>
+                <linearGradient id="modal-cyan-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#00ffd2" />
+                  <stop offset="100%" stop-color="#00e5ff" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="modal-timer-digits" id="modal-timer-digits">10</div>
+          </div>
+
+          <div class="modal-timer-status" id="modal-timer-status">READY</div>
+
+          <div class="modal-timer-controls">
+            <button class="timer-btn btn-start" id="modal-timer-toggle-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span id="modal-timer-toggle-text">START TIMER</span>
+            </button>
+            <button class="timer-btn btn-reset" id="modal-timer-reset-btn" title="Reset Timer">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 4v6h-6"></path>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              <span>RESET</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Audio Feedback Indicator -->
+  <div id="audio-indicator" class="audio-indicator-muted" title="Click to enable sound if blocked by browser">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-4h2v4zm0-6H9V7h2v3zm4 6h-2v-4h2v4zm0-6h-2V7h2v3z"/>
+    </svg>
+    <span>Sound Ready</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

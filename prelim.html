@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MDCU Tournament 2026 - Preliminary Round</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Prompt:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Navigation Link Back to Home Portal -->
+  <a href="index.html" class="nav-back-home">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+    <span>Home Portal</span>
+  </a>
+
+  <!-- Background Decorative Grid and Glowing Orbs -->
+  <div class="bg-decorations">
+    <div class="grid-overlay"></div>
+    <div class="glow-orb orb-cyan"></div>
+    <div class="glow-orb orb-purple"></div>
+  </div>
+
+  <!-- SVG Heartbeat Line (ECG) Overlay -->
+  <div class="heartbeat-container">
+    <svg viewBox="0 0 1200 200" class="heartbeat-svg" preserveAspectRatio="none">
+      <path class="heartbeat-path" d="M 0,100 L 300,100 L 320,80 L 340,120 L 360,100 L 400,100 L 410,30 L 430,170 L 450,100 L 500,100 L 510,85 L 520,115 L 530,100 L 800,100 L 810,40 L 830,165 L 845,100 L 900,100 L 920,80 L 940,120 L 960,100 L 1200,100" />
+    </svg>
+  </div>
+
+  <!-- Main Views Container -->
+  <main id="app-container">
+
+    <!-- VIEW 1: HOMEPAGE -->
+    <section id="view-home" class="view active">
+      <div class="home-content">
+        <div class="logo-wrapper secret-trigger" id="logo-trigger-prelim" title="MDCU Congress Logo - Enter Countdown">
+          <img src="assets/images/congresslogo.jpg" alt="MDCU Congress Logo" class="congress-logo">
+        </div>
+        <h1 class="tournament-title">
+          <span class="prefix">THE 4th</span>
+          <span class="highlight">MDCU</span>
+          <span class="suffix">MEDICAL TOURNAMENT 2026</span>
+        </h1>
+        <div class="pulse-line"></div>
+        <p class="tournament-details">23 JULY 2026 • PRELIMINARY ROUND</p>
+      </div>
+    </section>
+
+    <!-- VIEW 2: COUNTDOWN TIMER -->
+    <section id="view-countdown" class="view">
+      <div class="countdown-content">
+        <h2 class="view-header">PRELIMINARY ROUND</h2>
+        <h3 class="view-subheader">TIME REMAINING</h3>
+        
+        <div class="timer-display-container">
+          <!-- Circular Progress Ring -->
+          <svg class="progress-ring" width="400" height="400">
+            <circle class="progress-ring-bg" stroke="rgba(255, 255, 255, 0.08)" stroke-width="12" fill="rgba(2, 8, 14, 0.25)" r="180" cx="200" cy="200" />
+            <circle class="progress-ring-bar" stroke="url(#cyan-gradient)" stroke-width="16" stroke-linecap="round" fill="transparent" r="180" cx="200" cy="200" />
+            <defs>
+              <linearGradient id="cyan-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00ffd2" />
+                <stop offset="100%" stop-color="#00e5ff" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <!-- Big Numbers -->
+          <div class="timer-digits" id="timer-digits">15</div>
+        </div>
+
+        <div class="timer-status" id="timer-status">READY</div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: SCOREBOARD -->
+    <section id="view-scoreboard" class="view">
+      <div class="scoreboard-content">
+        <h2 class="view-header">PRELIMINARY ROUND</h2>
+        <h3 class="view-subheader">LEADERBOARD STANDINGS</h3>
+        
+        <div class="scoreboard-table-container">
+          <table class="scoreboard-table">
+            <thead>
+              <tr>
+                <th class="col-rank">Rank</th>
+                <th class="col-team">Team Name</th>
+                <th class="col-score">Score</th>
+              </tr>
+            </thead>
+            <tbody id="scoreboard-rows">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="scoreboard-footer">
+          <span class="live-indicator"><span class="live-dot"></span> Live Sheet Data</span>
+          <span class="refresh-time" id="last-updated">Last updated: Just now</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Audio Feedback Indicator -->
+  <div id="audio-indicator" class="audio-indicator-muted" title="Click to enable sound if blocked by browser">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-4h2v4zm0-6H9V7h2v3zm4 6h-2v-4h2v4zm0-6h-2V7h2v3z"/>
+    </svg>
+    <span>Sound Ready</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

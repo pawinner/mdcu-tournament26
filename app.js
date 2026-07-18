@@ -151,17 +151,34 @@ function playChime() {
 function switchView(viewName) {
   if (viewName === activeView) return;
   
-  // Clean up timer if navigating away from countdown
+  // Clean up timers if navigating away
   if (activeView === 'countdown') {
     pauseTimer();
   }
+  if (activeView === 'question') {
+    pauseModalTimer();
+  }
   
-  // Remove active from current view
-  document.getElementById(`view-${activeView}`).classList.remove('active');
+  // Remove active from current view if present
+  const currentViewEl = document.getElementById(`view-${activeView}`);
+  if (currentViewEl) currentViewEl.classList.remove('active');
   
   // Set new active view
   activeView = viewName;
-  document.getElementById(`view-${activeView}`).classList.add('active');
+  const newViewEl = document.getElementById(`view-${activeView}`);
+  if (newViewEl) newViewEl.classList.add('active');
+  
+  // Update top-left navigation button text dynamically based on active view
+  const navBackText = document.getElementById('nav-back-text');
+  if (navBackText) {
+    if (activeView === 'question') {
+      navBackText.textContent = 'Jeopardy Board';
+    } else if (activeView === 'jeopardy') {
+      navBackText.textContent = 'Landing Page';
+    } else {
+      navBackText.textContent = 'Home Portal';
+    }
+  }
   
   // Extra view load hooks
   if (activeView === 'scoreboard') {
@@ -198,9 +215,12 @@ function startTimer() {
   
   isTimerRunning = true;
   const viewEl = document.getElementById('view-countdown');
-  viewEl.classList.remove('timer-paused', 'timer-finished');
-  viewEl.classList.add('timer-running');
-  document.getElementById('timer-status').textContent = 'RUNNING';
+  if (viewEl) {
+    viewEl.classList.remove('timer-paused', 'timer-finished');
+    viewEl.classList.add('timer-running');
+  }
+  const statusEl = document.getElementById('timer-status');
+  if (statusEl) statusEl.textContent = 'RUNNING';
   
   // calculate base time based on remaining duration
   startTime = performance.now() - (pauseTimeElapsed * 1000);
@@ -224,7 +244,7 @@ function startTimer() {
     }
     
     // Visual warnings
-    if (currentLeft <= 5 && currentLeft > 0) {
+    if (currentLeft <= 5 && currentLeft > 0 && viewEl) {
       viewEl.classList.add('timer-warning');
     }
     
@@ -248,9 +268,12 @@ function pauseTimer() {
   pauseTimeElapsed = timerDuration - timeLeft;
   
   const viewEl = document.getElementById('view-countdown');
-  viewEl.classList.remove('timer-running');
-  viewEl.classList.add('timer-paused');
-  document.getElementById('timer-status').textContent = 'PAUSED';
+  if (viewEl) {
+    viewEl.classList.remove('timer-running');
+    viewEl.classList.add('timer-paused');
+  }
+  const statusEl = document.getElementById('timer-status');
+  if (statusEl) statusEl.textContent = 'PAUSED';
 }
 
 function resetTimer() {
@@ -261,8 +284,11 @@ function resetTimer() {
   pauseTimeElapsed = 0;
   
   const viewEl = document.getElementById('view-countdown');
-  viewEl.classList.remove('timer-running', 'timer-paused', 'timer-finished', 'timer-warning');
-  document.getElementById('timer-status').textContent = 'READY';
+  if (viewEl) {
+    viewEl.classList.remove('timer-running', 'timer-paused', 'timer-finished', 'timer-warning');
+  }
+  const statusEl = document.getElementById('timer-status');
+  if (statusEl) statusEl.textContent = 'READY';
   
   updateTimerUI();
 }
@@ -273,25 +299,28 @@ function finishTimer() {
   cancelAnimationFrame(animationFrameId);
   
   const viewEl = document.getElementById('view-countdown');
-  viewEl.classList.remove('timer-running', 'timer-warning');
-  viewEl.classList.add('timer-finished');
+  if (viewEl) {
+    viewEl.classList.remove('timer-running', 'timer-warning');
+    viewEl.classList.add('timer-finished');
+  }
   
   const digitsEl = document.getElementById('timer-digits');
   if (digitsEl) digitsEl.textContent = '00';
   
-  document.getElementById('timer-status').textContent = 'TIME UP';
+  const statusEl = document.getElementById('timer-status');
+  if (statusEl) statusEl.textContent = 'TIME UP';
   setProgress(0);
   playBuzzer();
 }
 
-// Trigger timer workflow directly (pressing '1' key)
+// Trigger timer workflow (pressing '1' key)
 function triggerTimerFlow() {
-  switchView('countdown');
-  resetTimer();
-  // Delay slightly to allow transition animation to begin nicely before sound/start
-  setTimeout(() => {
+  if (activeView !== 'countdown') {
+    switchView('countdown');
+    resetTimer();
+  } else {
     startTimer();
-  }, 100);
+  }
 }
 
 /* -------------------------------------------------------------
@@ -451,13 +480,24 @@ window.addEventListener('keydown', (e) => {
       break;
       
     case 'h':
-    case 'escape':
       e.preventDefault();
       switchView('home');
       break;
       
+    case 'escape':
+      if (activeView === 'question') {
+        e.preventDefault();
+        switchView('jeopardy');
+      } else if (activeView === 'countdown') {
+        e.preventDefault();
+        resetTimer();
+      } else {
+        e.preventDefault();
+        switchView('home');
+      }
+      break;
+      
     case ' ':
-      // Space toggles pause/resume ONLY if we are in the countdown view
       if (activeView === 'countdown') {
         e.preventDefault();
         if (isTimerRunning) {
@@ -465,6 +505,9 @@ window.addEventListener('keydown', (e) => {
         } else if (timeLeft > 0) {
           startTimer();
         }
+      } else if (activeView === 'question') {
+        e.preventDefault();
+        toggleModalTimer();
       }
       break;
       
@@ -472,20 +515,26 @@ window.addEventListener('keydown', (e) => {
       if (activeView === 'countdown') {
         e.preventDefault();
         resetTimer();
+      } else if (activeView === 'question') {
+        e.preventDefault();
+        resetModalTimer();
       }
       break;
   }
 });
 
 // Sound activation banner (resolves Chrome/Safari autoplay policy)
-document.getElementById('audio-indicator').addEventListener('click', () => {
-  initAudio();
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
-  // Play a quick chime to verify audio works
-  playChime();
-});
+const audioIndicator = document.getElementById('audio-indicator');
+if (audioIndicator) {
+  audioIndicator.addEventListener('click', () => {
+    initAudio();
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    // Play a quick chime to verify audio works
+    playChime();
+  });
+}
 
 // Automatically trigger audio context initialization on first click anywhere
 window.addEventListener('click', () => {
@@ -494,3 +543,295 @@ window.addEventListener('click', () => {
     audioCtx.resume();
   }
 }, { once: true });
+
+// Top-left Nav Back Button handler
+const navBackBtn = document.getElementById('nav-back-btn');
+if (navBackBtn) {
+  navBackBtn.addEventListener('click', (e) => {
+    if (activeView === 'question') {
+      e.preventDefault();
+      initAudio();
+      playChime();
+      switchView('jeopardy');
+    } else if (activeView === 'jeopardy') {
+      e.preventDefault();
+      initAudio();
+      playChime();
+      switchView('home');
+    }
+    // On Landing Page ('home'), standard link proceeds to index.html
+  });
+}
+
+// Secret logo click trigger to enter Jeopardy stage (Final Round)
+const logoTrigger = document.getElementById('logo-trigger');
+if (logoTrigger) {
+  logoTrigger.addEventListener('click', () => {
+    initAudio();
+    playChime();
+    switchView('jeopardy');
+  });
+}
+
+// Logo click trigger to enter Countdown stage without starting (Preliminary Round)
+const prelimLogoTrigger = document.getElementById('logo-trigger-prelim');
+if (prelimLogoTrigger) {
+  prelimLogoTrigger.addEventListener('click', () => {
+    initAudio();
+    playChime();
+    switchView('countdown');
+    resetTimer();
+  });
+}
+
+/* -------------------------------------------------------------
+ * Final Round Question Modal & 10-Second Timer Mechanism
+ * ------------------------------------------------------------- */
+const FINAL_QUESTIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShiFlPfYdFdhnR7pMbce-btJ9ZSfXFatonn62ZDvGofF9ldfcuqhLdXgnLWqxmmRT2hGV7fD0RHTyz/pub?gid=1869660564&single=true&output=csv';
+
+const finalQuestionsAuthors = {};
+let currentQuestionCard = null;
+let modalTimerDuration = 10;
+let modalTimeLeft = 10;
+let isModalTimerRunning = false;
+let modalStartTime = null;
+let modalPauseTimeElapsed = 0;
+let modalAnimationFrameId = null;
+const MODAL_RING_CIRCUMFERENCE = 2 * Math.PI * 115;
+
+// Initialize Modal Progress Ring Circumference
+const modalRingBar = document.getElementById('modal-ring-bar');
+if (modalRingBar) {
+  modalRingBar.style.strokeDasharray = `${MODAL_RING_CIRCUMFERENCE} ${MODAL_RING_CIRCUMFERENCE}`;
+  modalRingBar.style.strokeDashoffset = 0;
+}
+
+// Fetch "Final_Questions" sheet tab data on page load
+async function loadFinalQuestionsAuthors() {
+  try {
+    const res = await fetch(FINAL_QUESTIONS_CSV_URL);
+    if (!res.ok) throw new Error("Network response error loading questions sheet.");
+    const csvText = await res.text();
+    const lines = csvText.split(/\r?\n/);
+    lines.forEach((line, idx) => {
+      if (!line.trim()) return;
+      const cols = parseCSVLine(line);
+      if (cols.length >= 3 && idx > 0) {
+        const itemKey = cols[0].replace(/^["']|["']$/g, '').trim();
+        const author = cols[2].replace(/^["']|["']$/g, '').trim();
+        if (itemKey && author) {
+          finalQuestionsAuthors[itemKey] = author;
+        }
+      }
+    });
+    console.log("Loaded Final Questions Authors:", finalQuestionsAuthors);
+  } catch (err) {
+    console.warn("Could not fetch questions sheet, using default fallback author:", err);
+  }
+}
+
+if (document.querySelectorAll('.jeopardy-card').length > 0) {
+  loadFinalQuestionsAuthors();
+}
+
+function setModalRingProgress(percent) {
+  const ringBar = document.getElementById('modal-ring-bar');
+  if (!ringBar) return;
+  const offset = MODAL_RING_CIRCUMFERENCE * (1 - percent);
+  ringBar.style.strokeDashoffset = offset;
+}
+
+function updateModalTimerUI() {
+  const displayVal = Math.ceil(modalTimeLeft);
+  const digitsEl = document.getElementById('modal-timer-digits');
+  if (digitsEl) {
+    digitsEl.textContent = displayVal < 10 ? `0${displayVal}` : displayVal;
+  }
+  const percent = modalTimeLeft / modalTimerDuration;
+  setModalRingProgress(percent);
+}
+
+function resetModalTimer() {
+  isModalTimerRunning = false;
+  cancelAnimationFrame(modalAnimationFrameId);
+  modalTimeLeft = modalTimerDuration;
+  modalPauseTimeElapsed = 0;
+  
+  const statusEl = document.getElementById('modal-timer-status');
+  if (statusEl) {
+    statusEl.textContent = 'READY';
+    statusEl.style.color = 'var(--neon-cyan)';
+    statusEl.style.borderColor = 'rgba(0, 255, 210, 0.25)';
+  }
+  
+  const btnText = document.getElementById('modal-timer-toggle-text');
+  if (btnText) btnText.textContent = 'START TIMER';
+  
+  const digitsEl = document.getElementById('modal-timer-digits');
+  if (digitsEl) {
+    digitsEl.style.color = '#ffffff';
+    digitsEl.style.textShadow = '0 0 25px var(--neon-cyan-glow)';
+  }
+  
+  updateModalTimerUI();
+}
+
+function startModalTimer() {
+  initAudio();
+  if (isModalTimerRunning) return;
+  
+  // Mark card clicked ONLY when timer is started at least once
+  if (currentQuestionCard) {
+    currentQuestionCard.classList.add('clicked');
+  }
+  
+  isModalTimerRunning = true;
+  
+  const statusEl = document.getElementById('modal-timer-status');
+  if (statusEl) {
+    statusEl.textContent = 'RUNNING';
+    statusEl.style.color = 'var(--neon-green)';
+    statusEl.style.borderColor = 'rgba(0, 255, 102, 0.3)';
+  }
+  
+  const btnText = document.getElementById('modal-timer-toggle-text');
+  if (btnText) btnText.textContent = 'PAUSE TIMER';
+  
+  modalStartTime = performance.now() - (modalPauseTimeElapsed * 1000);
+  
+  function modalTick() {
+    if (!isModalTimerRunning) return;
+    
+    const now = performance.now();
+    const elapsed = (now - modalStartTime) / 1000;
+    const currentLeft = Math.max(0, modalTimerDuration - elapsed);
+    
+    const currentInt = Math.ceil(currentLeft);
+    const lastInt = Math.ceil(modalTimeLeft);
+    
+    modalTimeLeft = currentLeft;
+    updateModalTimerUI();
+    
+    if (currentInt < lastInt && currentInt > 0) {
+      playTick(currentInt <= 3);
+    }
+    
+    const digitsEl = document.getElementById('modal-timer-digits');
+    if (currentLeft <= 3 && currentLeft > 0 && digitsEl) {
+      digitsEl.style.color = 'var(--neon-pink)';
+      digitsEl.style.textShadow = '0 0 25px var(--neon-pink)';
+    }
+    
+    if (currentLeft <= 0) {
+      finishModalTimer();
+    } else {
+      modalAnimationFrameId = requestAnimationFrame(modalTick);
+    }
+  }
+  
+  modalAnimationFrameId = requestAnimationFrame(modalTick);
+}
+
+function pauseModalTimer() {
+  if (!isModalTimerRunning) return;
+  
+  isModalTimerRunning = false;
+  cancelAnimationFrame(modalAnimationFrameId);
+  modalPauseTimeElapsed = modalTimerDuration - modalTimeLeft;
+  
+  const statusEl = document.getElementById('modal-timer-status');
+  if (statusEl) {
+    statusEl.textContent = 'PAUSED';
+    statusEl.style.color = '#eab308';
+    statusEl.style.borderColor = 'rgba(234, 179, 8, 0.3)';
+  }
+  
+  const btnText = document.getElementById('modal-timer-toggle-text');
+  if (btnText) btnText.textContent = 'RESUME TIMER';
+}
+
+function toggleModalTimer() {
+  if (isModalTimerRunning) {
+    pauseModalTimer();
+  } else if (modalTimeLeft > 0) {
+    startModalTimer();
+  }
+}
+
+function finishModalTimer() {
+  isModalTimerRunning = false;
+  modalTimeLeft = 0;
+  cancelAnimationFrame(modalAnimationFrameId);
+  
+  const digitsEl = document.getElementById('modal-timer-digits');
+  if (digitsEl) {
+    digitsEl.textContent = '00';
+    digitsEl.style.color = '#ff0033';
+    digitsEl.style.textShadow = '0 0 30px #ff0033';
+  }
+  
+  const statusEl = document.getElementById('modal-timer-status');
+  if (statusEl) {
+    statusEl.textContent = 'TIME UP';
+    statusEl.style.color = '#ff0033';
+    statusEl.style.borderColor = 'rgba(255, 0, 51, 0.3)';
+  }
+  
+  const btnText = document.getElementById('modal-timer-toggle-text');
+  if (btnText) btnText.textContent = 'START TIMER';
+  
+  setModalRingProgress(0);
+  playBuzzer();
+}
+
+function openQuestionModal(card) {
+  currentQuestionCard = card;
+  const topic = card.dataset.topic;
+  const item = card.dataset.item;
+  const score = card.dataset.score;
+  
+  const itemKey = `${topic} - ${item}`;
+  const authorName = finalQuestionsAuthors[itemKey] || 'ผศ.ดร.นพ.ดนัย วังสตุรค';
+  
+  const topicEl = document.getElementById('modal-q-topic');
+  if (topicEl) topicEl.textContent = topic;
+  
+  const itemEl = document.getElementById('modal-q-item');
+  if (itemEl) itemEl.textContent = `ITEM NO. ${item}`;
+  
+  const scoreEl = document.getElementById('modal-q-score');
+  if (scoreEl) scoreEl.textContent = score;
+  
+  const authorEl = document.getElementById('modal-q-author');
+  if (authorEl) authorEl.textContent = authorName;
+  
+  resetModalTimer();
+  switchView('question');
+}
+
+// Jeopardy Card Click Handlers (Final Round)
+document.querySelectorAll('.jeopardy-card').forEach(card => {
+  card.addEventListener('click', () => {
+    initAudio();
+    playChime();
+    openQuestionModal(card);
+  });
+});
+
+// Modal Timer Controls Handlers
+const modalTimerToggleBtn = document.getElementById('modal-timer-toggle-btn');
+if (modalTimerToggleBtn) {
+  modalTimerToggleBtn.addEventListener('click', () => {
+    toggleModalTimer();
+  });
+}
+
+const modalTimerResetBtn = document.getElementById('modal-timer-reset-btn');
+if (modalTimerResetBtn) {
+  modalTimerResetBtn.addEventListener('click', () => {
+    resetModalTimer();
+  });
+}
+
+
+

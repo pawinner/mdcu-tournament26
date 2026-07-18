@@ -177,13 +177,245 @@ html, body {
   justify-content: center;
 }
 
-.logo-wrapper {
-  margin-bottom: 30px;
-  position: relative;
+.logo-wrapper.secret-trigger {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.logo-wrapper.secret-trigger:hover {
+  transform: scale(1.03);
+}
+
+/* -------------------------------------------------------------
+ * JEOPARDY BOARD STYLING (FINAL ROUND)
+ * ------------------------------------------------------------- */
+.jeopardy-container {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.jeopardy-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.jeopardy-badge {
   display: inline-block;
-  padding: 10px;
+  font-family: var(--font-title);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--neon-pink);
+  background: rgba(255, 0, 127, 0.1);
+  border: 1px solid rgba(255, 0, 127, 0.3);
+  padding: 6px 18px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  box-shadow: 0 0 15px rgba(255, 0, 127, 0.15);
+}
+
+.jeopardy-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+}
+
+.jeopardy-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Topic Category Header Card */
+.topic-card {
+  background: linear-gradient(135deg, rgba(6, 25, 38, 0.85) 0%, rgba(17, 6, 32, 0.85) 100%);
+  border: 1px solid rgba(0, 255, 210, 0.3);
+  border-radius: 16px;
+  padding: 20px 15px;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.topic-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+}
+
+.topic-icon {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 10px auto;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 255, 210, 0.15) 0%, transparent 70%);
+  background: rgba(0, 255, 210, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--neon-cyan);
+}
+
+.topic-card:nth-child(2) .topic-icon {
+  background: rgba(192, 38, 211, 0.1);
+  color: var(--neon-purple);
+}
+
+.topic-card:nth-child(3) .topic-icon {
+  background: rgba(255, 0, 127, 0.1);
+  color: var(--neon-pink);
+}
+
+.topic-title {
+  font-family: var(--font-title);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(0, 255, 210, 0.3);
+}
+
+/* Question Tile Cards - Default (Unclicked / Active State) */
+.jeopardy-card {
+  background: linear-gradient(135deg, rgba(6, 28, 42, 0.85) 0%, rgba(18, 8, 36, 0.85) 100%);
+  border: 1px solid rgba(0, 255, 210, 0.35);
+  border-radius: 14px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 12px rgba(0, 255, 210, 0.12);
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  min-height: 105px;
+}
+
+.jeopardy-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Hover state for active (unclicked) cards */
+.jeopardy-card:not(.clicked):hover {
+  transform: translateY(-5px) scale(1.03);
+  background: linear-gradient(135deg, rgba(8, 38, 56, 0.95) 0%, rgba(28, 12, 52, 0.95) 100%);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 15px 35px rgba(0, 255, 210, 0.35), 0 0 20px rgba(0, 255, 210, 0.2);
+}
+
+.jeopardy-card:not(.clicked):active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 4px 15px rgba(0, 255, 210, 0.4);
+}
+
+/* Spent / Clicked Question Tile styling (Dimmed / Spent State) */
+.jeopardy-card.clicked {
+  opacity: 0.35;
+  background: rgba(2, 8, 14, 0.35) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.jeopardy-card.clicked .card-score-value {
+  color: var(--text-muted) !important;
+  text-shadow: none !important;
+}
+
+.jeopardy-card.clicked .card-item-tag {
+  color: var(--text-muted) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+.jeopardy-card.clicked .card-topic-label {
+  color: var(--text-muted) !important;
+}
+
+.card-item-tag {
+  font-family: var(--font-title);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--neon-cyan);
+  background: rgba(0, 255, 210, 0.08);
+  border: 1px solid rgba(0, 255, 210, 0.25);
+  padding: 3px 10px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.card-score-value {
+  font-family: var(--font-title);
+  font-size: 2.3rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 1px;
+  text-shadow: 0 0 15px rgba(0, 255, 210, 0.6);
+  margin: 2px 0;
+  transition: all 0.3s ease;
+}
+
+.card-topic-label {
+  font-family: var(--font-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: 2px;
+}
+
+/* Score-tier specific neon styling for unclicked cards */
+.jeopardy-card[data-score="100"]:not(.clicked) .card-score-value {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 15px rgba(0, 255, 210, 0.5);
+}
+
+.jeopardy-card[data-score="200"]:not(.clicked) .card-score-value {
+  color: #38bdf8;
+  text-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+}
+
+.jeopardy-card[data-score="200"]:not(.clicked) .card-item-tag {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.jeopardy-card[data-score="250"]:not(.clicked) .card-score-value {
+  color: #e879f9;
+  text-shadow: 0 0 18px rgba(232, 121, 249, 0.6);
+}
+
+.jeopardy-card[data-score="250"]:not(.clicked) .card-item-tag {
+  color: #e879f9;
+  border-color: rgba(232, 121, 249, 0.35);
+  background: rgba(232, 121, 249, 0.1);
 }
 
 .congress-logo {
@@ -620,3 +852,695 @@ tr.rank-3 .col-score {
 #audio-indicator:hover {
   background: rgba(255, 255, 255, 0.08);
 }
+
+/* -------------------------------------------------------------
+ * NAVIGATION & ROUND PORTALS
+ * ------------------------------------------------------------- */
+
+/* Back to Home Navigation Button */
+.nav-back-home {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 8px 18px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-back-home:hover {
+  color: var(--neon-cyan);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 255, 210, 0.2);
+  transform: translateX(-3px);
+}
+
+.nav-back-home svg {
+  transition: transform 0.3s ease;
+}
+
+.nav-back-home:hover svg {
+  transform: translateX(-3px);
+}
+
+/* Portal Navigation Layout on index.html */
+.portal-nav-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  gap: 30px;
+  margin-top: 40px;
+  width: 100%;
+  max-width: 900px;
+}
+
+.portal-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: rgba(4, 19, 28, 0.6);
+  border: 1px solid rgba(0, 255, 210, 0.15);
+  border-radius: 20px;
+  padding: 36px 28px;
+  text-decoration: none;
+  color: var(--text-main);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.portal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  transition: left 0.7s ease;
+}
+
+.portal-card:hover::before {
+  left: 100%;
+}
+
+.portal-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 20px 40px rgba(0, 255, 210, 0.15), 0 0 20px rgba(0, 255, 210, 0.1);
+}
+
+.portal-card.final-card:hover {
+  border-color: var(--neon-purple);
+  box-shadow: 0 20px 40px rgba(192, 38, 211, 0.2), 0 0 20px rgba(192, 38, 211, 0.15);
+}
+
+.portal-badge {
+  align-self: flex-start;
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 6px 14px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  background: rgba(0, 255, 210, 0.1);
+  color: var(--neon-cyan);
+  border: 1px solid rgba(0, 255, 210, 0.3);
+  margin-bottom: 24px;
+}
+
+.portal-card.final-card .portal-badge {
+  background: rgba(192, 38, 211, 0.15);
+  color: #e879f9;
+  border-color: rgba(192, 38, 211, 0.4);
+}
+
+.portal-title {
+  font-family: var(--font-title);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.portal-desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 30px;
+}
+
+.portal-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-title);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--neon-cyan);
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.portal-card.final-card .portal-action {
+  color: #e879f9;
+}
+
+.portal-action svg {
+  transition: transform 0.3s ease;
+}
+
+.portal-card:hover .portal-action svg {
+  transform: translateX(6px);
+}
+
+/* Final Round Placeholder Styling */
+.final-placeholder-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 40px 30px;
+  background: rgba(17, 6, 32, 0.4);
+  border: 1px solid rgba(192, 38, 211, 0.2);
+  border-radius: 24px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.final-icon-glow {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(192, 38, 211, 0.15);
+  border: 1px solid rgba(192, 38, 211, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  color: #e879f9;
+  box-shadow: 0 0 25px rgba(192, 38, 211, 0.25);
+}
+
+.final-notice-title {
+  font-family: var(--font-title);
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.final-notice-desc {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* -------------------------------------------------------------
+ * JEOPARDY BOARD STYLING (FINAL ROUND)
+ * ------------------------------------------------------------- */
+.jeopardy-container {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.jeopardy-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.jeopardy-badge {
+  display: inline-block;
+  font-family: var(--font-title);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--neon-pink);
+  background: rgba(255, 0, 127, 0.1);
+  border: 1px solid rgba(255, 0, 127, 0.3);
+  padding: 6px 18px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  box-shadow: 0 0 15px rgba(255, 0, 127, 0.15);
+}
+
+.jeopardy-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+}
+
+.jeopardy-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Topic Category Header Card */
+.topic-card {
+  background: linear-gradient(135deg, rgba(6, 25, 38, 0.85) 0%, rgba(17, 6, 32, 0.85) 100%);
+  border: 1px solid rgba(0, 255, 210, 0.3);
+  border-radius: 16px;
+  padding: 20px 15px;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.topic-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+}
+
+.topic-icon {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 10px auto;
+  border-radius: 50%;
+  background: rgba(0, 255, 210, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--neon-cyan);
+}
+
+.topic-card:nth-child(2) .topic-icon {
+  background: rgba(192, 38, 211, 0.1);
+  color: var(--neon-purple);
+}
+
+.topic-card:nth-child(3) .topic-icon {
+  background: rgba(255, 0, 127, 0.1);
+  color: var(--neon-pink);
+}
+
+.topic-title {
+  font-family: var(--font-title);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(0, 255, 210, 0.3);
+}
+
+/* Question Tile Cards */
+.jeopardy-card {
+  background: rgba(4, 18, 28, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  min-height: 105px;
+}
+
+.jeopardy-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.jeopardy-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  background: rgba(8, 32, 48, 0.85);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 12px 30px rgba(0, 255, 210, 0.25), 0 0 15px rgba(0, 255, 210, 0.15);
+}
+
+.jeopardy-card:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 4px 15px rgba(0, 255, 210, 0.4);
+}
+
+/* Visited / Clicked card styling */
+.jeopardy-card.clicked {
+  border-color: rgba(0, 255, 210, 0.6);
+  background: rgba(0, 255, 210, 0.08);
+  animation: cardPulse 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes cardPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 210, 0.7); }
+  50% { transform: scale(1.04); box-shadow: 0 0 25px 5px rgba(0, 255, 210, 0.4); }
+  100% { transform: scale(1); }
+}
+
+.card-item-tag {
+  font-family: var(--font-title);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--neon-cyan);
+  background: rgba(0, 255, 210, 0.08);
+  border: 1px solid rgba(0, 255, 210, 0.25);
+  padding: 3px 10px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.card-score-value {
+  font-family: var(--font-title);
+  font-size: 2.3rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 1px;
+  text-shadow: 0 0 15px rgba(0, 255, 210, 0.6);
+  margin: 2px 0;
+  transition: all 0.3s ease;
+}
+
+.card-topic-label {
+  font-family: var(--font-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: 2px;
+}
+
+/* Score-tier specific neon styling */
+.jeopardy-card[data-score="100"] .card-score-value {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 15px rgba(0, 255, 210, 0.5);
+}
+
+.jeopardy-card[data-score="200"] .card-score-value {
+  color: #38bdf8;
+  text-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+}
+
+.jeopardy-card[data-score="200"] .card-item-tag {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.jeopardy-card[data-score="250"] .card-score-value {
+  color: #e879f9;
+  text-shadow: 0 0 18px rgba(232, 121, 249, 0.6);
+}
+
+.jeopardy-card[data-score="250"] .card-item-tag {
+  color: #e879f9;
+  border-color: rgba(232, 121, 249, 0.35);
+  background: rgba(232, 121, 249, 0.1);
+}
+
+@media (max-width: 900px) {
+  .jeopardy-grid {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+}
+
+/* -------------------------------------------------------------
+ * QUESTION DETAIL MODAL & 10s TIMER
+ * ------------------------------------------------------------- */
+.modal-question-container {
+  width: 100%;
+  max-width: 1240px;
+  background: rgba(4, 18, 28, 0.75);
+  border: 1px solid rgba(0, 255, 210, 0.25);
+  border-radius: 24px;
+  padding: 40px 45px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  gap: 45px;
+  margin: 0 auto;
+}
+
+.question-detail-left {
+  flex: 1.4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.modal-badge-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.modal-topic-badge {
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--neon-cyan);
+  background: rgba(0, 255, 210, 0.12);
+  border: 1.5px solid rgba(0, 255, 210, 0.4);
+  padding: 8px 22px;
+  border-radius: 14px;
+  text-transform: uppercase;
+  box-shadow: 0 0 15px rgba(0, 255, 210, 0.15);
+}
+
+.modal-item-badge {
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  padding: 8px 22px;
+  border-radius: 14px;
+  text-transform: uppercase;
+}
+
+.modal-score-box {
+  margin-bottom: 30px;
+}
+
+.modal-score-label {
+  display: block;
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.modal-score-num {
+  font-family: var(--font-title);
+  font-size: 5rem;
+  font-weight: 900;
+  color: var(--neon-cyan);
+  line-height: 1;
+  text-shadow: 0 0 25px rgba(0, 255, 210, 0.5);
+}
+
+.author-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(135deg, rgba(17, 6, 32, 0.75) 0%, rgba(26, 10, 48, 0.75) 100%);
+  border: 1.5px solid rgba(192, 38, 211, 0.4);
+  border-radius: 20px;
+  padding: 22px 26px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(192, 38, 211, 0.15);
+}
+
+.author-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(192, 38, 211, 0.2);
+  border: 1px solid rgba(192, 38, 211, 0.4);
+  color: #e879f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 15px rgba(192, 38, 211, 0.3);
+}
+
+.author-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.author-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--neon-pink);
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(255, 0, 127, 0.3);
+}
+
+.author-name {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* Modal Vertical Divider */
+.modal-divider {
+  width: 1px;
+  height: 320px;
+  background: linear-gradient(180deg, transparent, rgba(0, 255, 210, 0.3), rgba(192, 38, 211, 0.3), transparent);
+}
+
+/* Right Side: 10-Second Timer */
+.question-timer-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-timer-header {
+  font-family: var(--font-title);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--text-secondary);
+  margin-bottom: 15px;
+}
+
+.modal-timer-ring-container {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-timer-ring {
+  transform: rotate(-90deg);
+}
+
+.modal-ring-bar {
+  transition: stroke-dashoffset 0.1s linear;
+  filter: drop-shadow(0 0 10px var(--neon-cyan-glow));
+}
+
+.modal-timer-digits {
+  position: absolute;
+  font-family: var(--font-title);
+  font-size: 5.5rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 0 25px var(--neon-cyan-glow);
+}
+
+.modal-timer-status {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--neon-cyan);
+  background: rgba(0, 255, 210, 0.08);
+  border: 1px solid rgba(0, 255, 210, 0.25);
+  padding: 6px 24px;
+  border-radius: 20px;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+}
+
+.modal-timer-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.timer-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.btn-start {
+  background: linear-gradient(135deg, rgba(0, 255, 210, 0.2) 0%, rgba(0, 229, 255, 0.2) 100%);
+  border-color: var(--neon-cyan);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(0, 255, 210, 0.2);
+}
+
+.btn-start:hover {
+  background: linear-gradient(135deg, rgba(0, 255, 210, 0.35) 0%, rgba(0, 229, 255, 0.35) 100%);
+  box-shadow: 0 0 25px rgba(0, 255, 210, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-reset {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+}
+
+.btn-reset:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 900px) {
+  .modal-question-container {
+    flex-direction: column;
+    padding: 30px 20px;
+    gap: 30px;
+  }
+  .modal-divider {
+    width: 100%;
+    height: 1px;
+  }
+}
+
+
+
