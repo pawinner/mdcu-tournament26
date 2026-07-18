@@ -489,13 +489,14 @@ html, body {
 }
 
 .tournament-details {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+  font-weight: 700;
   color: var(--neon-pink);
-  letter-spacing: 3px;
+  letter-spacing: 4px;
   text-transform: uppercase;
-  text-shadow: 0 0 8px rgba(255, 0, 127, 0.3);
-  margin-top: 60px;
+  text-shadow: 0 0 12px rgba(255, 0, 127, 0.4);
+  margin-top: 50px;
   margin-bottom: 10px;
   position: relative;
   z-index: 5;
@@ -976,7 +977,7 @@ tr.rank-3 .col-score {
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: 1px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   color: #ffffff;
 }
 
@@ -1539,6 +1540,10 @@ tr.rank-3 .col-score {
   .modal-divider {
     width: 100%;
     height: 1px;
+  }
+  .tournament-details {
+    font-size: 1.3rem;
+    letter-spacing: 2px;
   }
 }
 

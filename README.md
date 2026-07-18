@@ -94,7 +94,7 @@ The application utilizes the **Web Audio API** to generate 100% offline-compatib
 - **Time Up Buzzer**: Dual-oscillator detuned digital buzzer when time reaches `00`.
 - **Navigation Chimes**: Upward arpeggio chime (C4 -> E4 -> G4 -> C5) on view transitions.
 
-> ℹ️ **Enabling Audio Context**: Web browsers require user interaction before playing audio. Click the **"Sound Ready"** badge in the bottom-right corner (or click anywhere on the page) before live stage presentation.
+> ℹ️ **Enabling Audio Context**: Web browsers require user interaction before playing audio. Click anywhere on the page before live stage presentation to enable audio playback.
 
 ---
 
