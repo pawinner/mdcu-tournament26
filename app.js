@@ -5,6 +5,9 @@
 // Configuration
 const CONFIG = {
   countdownDuration: 15, // seconds
+  appsScriptUrl: '', // Optional: Global Apps Script Web App URL override
+  prelimAppsScriptUrl: '', // Optional: Prelim Apps Script Web App URL
+  finalAppsScriptUrl: '', // Optional: Final Apps Script Web App URL
   prelimSheetCsvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShiFlPfYdFdhnR7pMbce-btJ9ZSfXFatonn62ZDvGofF9ldfcuqhLdXgnLWqxmmRT2hGV7fD0RHTyz/pub?gid=0&single=true&output=csv',
   finalSheetCsvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShiFlPfYdFdhnR7pMbce-btJ9ZSfXFatonn62ZDvGofF9ldfcuqhLdXgnLWqxmmRT2hGV7fD0RHTyz/pub?gid=1034909864&single=true&output=csv',
   maxTeamsPrelim: 6,
@@ -364,35 +367,138 @@ function parseCSVLine(line) {
   return result;
 }
 
-// Render team list onto table rows
+// HTML escaping utility
+function escapeHtml(str) {
+  return String(str !== null && str !== undefined ? str : '')
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// In-memory state tracking for Stale-While-Revalidate and FLIP animations
+let currentRenderedStandings = [];
+
+// Render team list onto table rows with FLIP rank swapping animation & SWR
 function renderStandings(standings, maxTeams = 6) {
   const tbody = document.getElementById('scoreboard-rows');
   if (!tbody) return;
   
-  tbody.innerHTML = '';
-  
   // Sort descending by score and slice to maxTeams
-  const sorted = [...standings].sort((a, b) => b.score - a.score).slice(0, maxTeams);
+  const newSorted = [...standings].sort((a, b) => b.score - a.score).slice(0, maxTeams);
   
-  sorted.forEach((team, index) => {
-    const rank = index + 1;
-    const tr = document.createElement('tr');
-    
-    // Assign top 3 formatting classes
-    if (rank <= 3) {
-      tr.className = `rank-${rank}`;
-    }
-    
-    // Adding animation delay so the lines slide in sequentially (staggered)
-    tr.style.animationDelay = `${index * 0.08}s`;
-    
-    tr.innerHTML = `
-      <td class="col-rank"><span>${rank}</span></td>
-      <td class="col-team">${team.name}</td>
-      <td class="col-score">${team.score}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+  const existingRows = Array.from(tbody.querySelectorAll('tr'));
+  const isInitialRender = existingRows.length === 0 || currentRenderedStandings.length === 0;
+  
+  if (isInitialRender) {
+    tbody.innerHTML = '';
+    newSorted.forEach((team, index) => {
+      const rank = index + 1;
+      const tr = document.createElement('tr');
+      tr.dataset.teamName = team.name;
+      
+      if (rank <= 3) {
+        tr.className = `rank-${rank}`;
+      }
+      
+      tr.style.animationDelay = `${index * 0.08}s`;
+      tr.innerHTML = `
+        <td class="col-rank"><span>${rank}</span></td>
+        <td class="col-team">${escapeHtml(team.name)}</td>
+        <td class="col-score">${team.score}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    currentRenderedStandings = newSorted;
+  } else {
+    // 1. FIRST: Capture old bounding box positions
+    const firstPositions = {};
+    existingRows.forEach(row => {
+      const name = row.dataset.teamName;
+      if (name) {
+        firstPositions[name] = row.getBoundingClientRect().top;
+      }
+    });
+
+    // 2. LAST: Render updated DOM elements
+    tbody.innerHTML = '';
+    const newRowElements = [];
+
+    newSorted.forEach((team, index) => {
+      const rank = index + 1;
+      const tr = document.createElement('tr');
+      tr.dataset.teamName = team.name;
+      tr.className = 'rank-row-animating';
+      
+      if (rank <= 3) {
+        tr.classList.add(`rank-${rank}`);
+      }
+      
+      // Check if score changed
+      const oldItem = currentRenderedStandings.find(item => item.name === team.name);
+      if (oldItem && oldItem.score !== team.score) {
+        tr.classList.add('score-updated');
+      }
+
+      tr.innerHTML = `
+        <td class="col-rank"><span>${rank}</span></td>
+        <td class="col-team">${escapeHtml(team.name)}</td>
+        <td class="col-score">${team.score}</td>
+      `;
+      tbody.appendChild(tr);
+      newRowElements.push(tr);
+    });
+
+    // 3. INVERT: Measure new positions and apply transform offsets
+    const lastPositions = {};
+    newRowElements.forEach(row => {
+      const name = row.dataset.teamName;
+      if (name) {
+        lastPositions[name] = row.getBoundingClientRect().top;
+      }
+    });
+
+    newRowElements.forEach(row => {
+      const name = row.dataset.teamName;
+      const firstTop = firstPositions[name];
+      const lastTop = lastPositions[name];
+
+      if (firstTop !== undefined && lastTop !== undefined) {
+        const deltaY = firstTop - lastTop;
+        if (deltaY !== 0) {
+          row.classList.add('rank-swapping');
+          row.style.transform = `translateY(${deltaY}px)`;
+          row.style.transition = 'none';
+        }
+      } else {
+        // Entering row
+        row.style.opacity = '0';
+        row.style.transform = 'translateY(15px)';
+      }
+    });
+
+    // Force browser layout reflow
+    void tbody.offsetHeight;
+
+    // 4. PLAY: Animate smoothly to natural position
+    requestAnimationFrame(() => {
+      newRowElements.forEach(row => {
+        row.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease';
+        row.style.transform = '';
+        row.style.opacity = '';
+      });
+    });
+
+    setTimeout(() => {
+      newRowElements.forEach(row => {
+        row.classList.remove('rank-swapping', 'score-updated', 'rank-row-animating');
+        row.style.transition = '';
+      });
+    }, 700);
+
+    currentRenderedStandings = newSorted;
+  }
   
   const lastUpdatedEl = document.getElementById('last-updated');
   if (lastUpdatedEl) {
@@ -401,73 +507,123 @@ function renderStandings(standings, maxTeams = 6) {
   }
 }
 
-// Load Scoreboard Core
+// Load Scoreboard Core (Supports Apps Script Web App API & Published CSV with Header-based parsing)
 async function loadScoreboard() {
   const isFinalPage = !!document.getElementById('view-jeopardy');
   const maxTeams = isFinalPage ? CONFIG.maxTeamsFinal : CONFIG.maxTeamsPrelim;
-  const url = CONFIG.googleSheetCsvUrl || (isFinalPage ? CONFIG.finalSheetCsvUrl : CONFIG.prelimSheetCsvUrl);
   
-  if (!url) {
-    console.log("No Google Sheet CSV URL set. Loading mock data...");
-    renderStandings(MOCK_STANDINGS, maxTeams);
+  // Prioritize Apps Script URL if configured, otherwise fallback to CSV
+  const appsScriptUrl = CONFIG.appsScriptUrl || (isFinalPage ? CONFIG.finalAppsScriptUrl : CONFIG.prelimAppsScriptUrl);
+  const csvUrl = CONFIG.googleSheetCsvUrl || (isFinalPage ? CONFIG.finalSheetCsvUrl : CONFIG.prelimSheetCsvUrl);
+  const targetUrl = appsScriptUrl || csvUrl;
+  
+  // If no URL is set and we have no stored standings, load mock data
+  if (!targetUrl) {
+    console.log("No Google Sheet / Apps Script URL set. Loading mock data...");
+    if (currentRenderedStandings.length === 0) {
+      renderStandings(MOCK_STANDINGS, maxTeams);
+    }
     return;
   }
   
+  // STALE-WHILE-REVALIDATE: If data is already rendered, keep showing it while fetching
+  const lastUpdatedEl = document.getElementById('last-updated');
+  if (lastUpdatedEl && currentRenderedStandings.length > 0) {
+    lastUpdatedEl.textContent = `Updating live... (${new Date().toLocaleTimeString()})`;
+  }
+
   try {
-    const response = await fetch(url);
+    const response = await fetch(targetUrl);
     if (!response.ok) throw new Error("Network response error loading sheet.");
     
-    const csvText = await response.text();
-    const rows = csvText.split(/\r?\n/);
-    const parsedTeams = [];
+    const textData = await response.text();
+    let parsedTeams = [];
     
-    rows.forEach((rowText, idx) => {
-      if (!rowText.trim()) return;
-      const cols = parseCSVLine(rowText);
-      
-      // Auto-detect & skip headers (Thai/English indicators)
-      const isHeader = cols.some(c => {
-        const val = c.toLowerCase();
-        return val === 'team' || val === 'score' || val === 'points' || val === 'rank' || val === 'ชื่อทีม' || val === 'คะแนน' || val === 'ลำดับ';
-      });
-      if (isHeader && idx === 0) return;
-      
-      let score = null;
-      let teamName = '';
-      
-      cols.forEach(col => {
-        const cleaned = col.replace(/^["']|["']$/g, '').trim();
-        if (cleaned === '') return;
+    // Attempt 1: Try parsing as JSON (Apps Script Web App response)
+    const trimmedText = textData.trim();
+    if (trimmedText.startsWith('{') || trimmedText.startsWith('[')) {
+      try {
+        const jsonData = JSON.parse(trimmedText);
+        const list = Array.isArray(jsonData) ? jsonData : (jsonData.standings || []);
         
-        const num = parseFloat(cleaned);
-        if (!isNaN(num)) {
-          score = num;
-        } else {
-          if (!teamName || cleaned.length > teamName.length) {
-            teamName = cleaned;
+        parsedTeams = list.map(item => {
+          const rawName = item.name !== undefined ? item.name : (item.team || item.teamName || '');
+          const rawScore = item.score !== undefined ? item.score : (item.points || 0);
+          return {
+            name: String(rawName).trim(),
+            score: parseFloat(rawScore)
+          };
+        }).filter(t => t.name !== '' && !isNaN(t.score));
+      } catch (jsonErr) {
+        console.warn("Text looked like JSON but failed to parse, falling back to CSV parser:", jsonErr);
+      }
+    }
+
+    // Attempt 2: CSV Parser with Header-Based Column Indexing
+    if (parsedTeams.length === 0) {
+      const rows = textData.split(/\r?\n/).filter(r => r.trim().length > 0);
+      if (rows.length > 0) {
+        const firstRowCols = parseCSVLine(rows[0]);
+        
+        // Detect Header Row
+        let nameColIdx = -1;
+        let scoreColIdx = -1;
+        let startRowIdx = 0;
+
+        // Header detection rules
+        firstRowCols.forEach((colText, i) => {
+          const val = colText.replace(/^["']|["']$/g, '').trim().toLowerCase();
+          if (val === 'team' || val === 'name' || val === 'team name' || val === 'ชื่อทีม' || val === 'ทีม' || val === 'teamname') {
+            nameColIdx = i;
+          } else if (val === 'score' || val === 'scores' || val === 'points' || val === 'pts' || val === 'คะแนน' || val === 'แต้ม') {
+            scoreColIdx = i;
+          }
+        });
+
+        if (nameColIdx !== -1 || scoreColIdx !== -1) {
+          startRowIdx = 1; // Skip header line
+        }
+
+        // Fallbacks if header labels were missing or not explicitly matched
+        if (nameColIdx === -1) nameColIdx = 0;
+        if (scoreColIdx === -1) scoreColIdx = firstRowCols.length > 1 ? 1 : 0;
+
+        for (let i = startRowIdx; i < rows.length; i++) {
+          const cols = parseCSVLine(rows[i]);
+          if (!cols || cols.length === 0) continue;
+
+          const rawName = cols[nameColIdx];
+          const rawScore = cols[scoreColIdx];
+
+          const teamName = String(rawName !== undefined ? rawName : '').replace(/^["']|["']$/g, '').trim();
+          const scoreNum = parseFloat(String(rawScore !== undefined ? rawScore : '').replace(/^["']|["']$/g, '').trim());
+
+          if (teamName !== '' && !isNaN(scoreNum)) {
+            parsedTeams.push({ name: teamName, score: scoreNum });
           }
         }
-      });
-      
-      if (teamName && score !== null) {
-        parsedTeams.push({ name: teamName, score: score });
       }
-    });
+    }
     
     if (parsedTeams.length > 0) {
       renderStandings(parsedTeams, maxTeams);
     } else {
-      throw new Error("No teams parsed from published sheet.");
+      throw new Error("No valid teams parsed from response.");
     }
     
   } catch (error) {
     console.error("Failed to load live scoreboard:", error);
-    renderStandings(MOCK_STANDINGS, maxTeams);
     
-    const refreshText = document.getElementById('last-updated');
-    if (refreshText) {
-      refreshText.textContent = "Offline Fallback Mode (Loading Mock)";
-      refreshText.style.color = "#ff007f";
+    // If we have no cached data rendered yet, fall back to mock data
+    if (currentRenderedStandings.length === 0) {
+      renderStandings(MOCK_STANDINGS, maxTeams);
+    }
+    
+    if (lastUpdatedEl) {
+      lastUpdatedEl.textContent = currentRenderedStandings.length > 0
+        ? `Last updated: ${new Date().toLocaleTimeString()} (Fetch retry failed)`
+        : "Offline Fallback Mode (Loading Mock)";
+      lastUpdatedEl.style.color = "#ff007f";
     }
   }
 }
@@ -616,14 +772,14 @@ if (prelimLogoTrigger) {
 }
 
 /* -------------------------------------------------------------
- * Final Round Question Modal & 10-Second Timer Mechanism
+ * Final Round Question Modal & 30-Second Timer Mechanism
  * ------------------------------------------------------------- */
 const FINAL_QUESTIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShiFlPfYdFdhnR7pMbce-btJ9ZSfXFatonn62ZDvGofF9ldfcuqhLdXgnLWqxmmRT2hGV7fD0RHTyz/pub?gid=1869660564&single=true&output=csv';
 
 const finalQuestionsAuthors = {};
 let currentQuestionCard = null;
-let modalTimerDuration = 10;
-let modalTimeLeft = 10;
+let modalTimerDuration = 30;
+let modalTimeLeft = 30;
 let isModalTimerRunning = false;
 let modalStartTime = null;
 let modalPauseTimeElapsed = 0;
@@ -744,11 +900,11 @@ function startModalTimer() {
     updateModalTimerUI();
     
     if (currentInt < lastInt && currentInt > 0) {
-      playTick(currentInt <= 3);
+      playTick(currentInt <= 5);
     }
     
     const digitsEl = document.getElementById('modal-timer-digits');
-    if (currentLeft <= 3 && currentLeft > 0 && digitsEl) {
+    if (currentLeft <= 5 && currentLeft > 0 && digitsEl) {
       digitsEl.style.color = 'var(--neon-pink)';
       digitsEl.style.textShadow = '0 0 25px var(--neon-pink)';
     }

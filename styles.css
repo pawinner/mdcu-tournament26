@@ -696,6 +696,26 @@ html, body {
   animation: slideInRow 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.scoreboard-table tbody tr.rank-row-animating {
+  animation: none !important;
+  will-change: transform, opacity;
+}
+
+@keyframes scoreFlashGlow {
+  0% {
+    background-color: rgba(0, 255, 210, 0.22);
+    box-shadow: inset 0 0 20px rgba(0, 255, 210, 0.3);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+
+tr.score-updated {
+  animation: scoreFlashGlow 1.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
 @keyframes slideInRow {
   0% { transform: translateY(15px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
@@ -1414,7 +1434,7 @@ tr.rank-3 .col-score {
   background: linear-gradient(180deg, transparent, rgba(0, 255, 210, 0.3), rgba(192, 38, 211, 0.3), transparent);
 }
 
-/* Right Side: 10-Second Timer */
+/* Right Side: 30-Second Timer */
 .question-timer-right {
   flex: 1;
   display: flex;
