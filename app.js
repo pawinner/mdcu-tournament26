@@ -5,9 +5,9 @@
 // Configuration
 const CONFIG = {
   countdownDuration: 15, // seconds
-  appsScriptUrl: '', // Optional: Global Apps Script Web App URL override
-  prelimAppsScriptUrl: '', // Optional: Prelim Apps Script Web App URL
-  finalAppsScriptUrl: '', // Optional: Final Apps Script Web App URL
+  appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwCnmz4RZnz9sl8t0vgVbj7N2pCYW0aj1YU36yPBmUbU1jeMKIwqcGjxlY__-qQ5A0/exec', // Deployed Apps Script Web App API endpoint
+  prelimAppsScriptUrl: '', // Optional: Prelim Apps Script Web App URL override
+  finalAppsScriptUrl: '', // Optional: Final Apps Script Web App URL override
   prelimSheetCsvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShiFlPfYdFdhnR7pMbce-btJ9ZSfXFatonn62ZDvGofF9ldfcuqhLdXgnLWqxmmRT2hGV7fD0RHTyz/pub?gid=0&single=true&output=csv',
   finalSheetCsvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShiFlPfYdFdhnR7pMbce-btJ9ZSfXFatonn62ZDvGofF9ldfcuqhLdXgnLWqxmmRT2hGV7fD0RHTyz/pub?gid=1034909864&single=true&output=csv',
   maxTeamsPrelim: 6,
