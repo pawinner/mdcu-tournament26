@@ -27,6 +27,7 @@ All views, navigation, and timing controls can be managed seamlessly via keyboar
 | <kbd>H</kbd> | Any Page | Returns to the stage **Landing Page**. |
 | <kbd>Space</kbd> | Countdown / Question View | **Pause / Resume** timer toggle. |
 | <kbd>R</kbd> | Countdown / Question View | **Reset** timer back to ready status. |
+| <kbd>A</kbd> | Final Round | Toggles **Question Author Card** display on/off. |
 | <kbd>Esc</kbd> | Question View | Exits question detail and returns to Jeopardy Board. |
 | <kbd>Esc</kbd> | Scoreboard View | Closes scoreboard and returns to previous active view. |
 | <kbd>Esc</kbd> | Countdown View | Resets countdown timer. |

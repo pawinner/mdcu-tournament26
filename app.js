@@ -12,6 +12,7 @@ const CONFIG = {
   finalSheetCsvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vShiFlPfYdFdhnR7pMbce-btJ9ZSfXFatonn62ZDvGofF9ldfcuqhLdXgnLWqxmmRT2hGV7fD0RHTyz/pub?gid=1034909864&single=true&output=csv',
   maxTeamsPrelim: 6,
   maxTeamsFinal: 4,
+  showFinalQuestionAuthors: false, // Set to true to show question author in final round modal, false to hide
   googleSheetCsvUrl: '' 
 };
 
@@ -387,8 +388,26 @@ function renderStandings(standings, maxTeams = 6) {
   
   // Sort descending by score and slice to maxTeams
   const newSorted = [...standings].sort((a, b) => b.score - a.score).slice(0, maxTeams);
-  
   const existingRows = Array.from(tbody.querySelectorAll('tr'));
+
+  // 0. ABSOLUTE NO-OP GUARD: If data is identical to rendered state, do ZERO DOM work
+  const isIdentical = existingRows.length === newSorted.length &&
+    currentRenderedStandings.length === newSorted.length &&
+    newSorted.every((item, i) => 
+      currentRenderedStandings[i] && 
+      item.name === currentRenderedStandings[i].name && 
+      item.score === currentRenderedStandings[i].score
+    );
+
+  if (isIdentical) {
+    const lastUpdatedEl = document.getElementById('last-updated');
+    if (lastUpdatedEl) {
+      lastUpdatedEl.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+      lastUpdatedEl.style.color = '';
+    }
+    return;
+  }
+
   const isInitialRender = existingRows.length === 0 || currentRenderedStandings.length === 0;
   
   if (isInitialRender) {
@@ -398,7 +417,7 @@ function renderStandings(standings, maxTeams = 6) {
       const tr = document.createElement('tr');
       tr.dataset.teamName = team.name;
       
-      if (rank <= 3) {
+      if (rank <= 4) {
         tr.className = `rank-${rank}`;
       }
       
@@ -412,54 +431,81 @@ function renderStandings(standings, maxTeams = 6) {
     });
     currentRenderedStandings = newSorted;
   } else {
-    // 1. FIRST: Capture old bounding box positions
+    // 1. FIRST: Capture bounding box top positions of existing rows
     const firstPositions = {};
+    const existingRowMap = new Map();
+
     existingRows.forEach(row => {
       const name = row.dataset.teamName;
       if (name) {
         firstPositions[name] = row.getBoundingClientRect().top;
+        existingRowMap.set(name, row);
       }
     });
 
-    // 2. LAST: Render updated DOM elements
-    tbody.innerHTML = '';
-    const newRowElements = [];
+    // 2. LAST: Update existing DOM nodes in-place without destroying them
+    const activeRowElements = [];
 
     newSorted.forEach((team, index) => {
       const rank = index + 1;
-      const tr = document.createElement('tr');
-      tr.dataset.teamName = team.name;
-      tr.className = 'rank-row-animating';
-      
-      if (rank <= 3) {
+      let tr = existingRowMap.get(team.name);
+      let isNew = false;
+
+      if (!tr) {
+        tr = document.createElement('tr');
+        tr.dataset.teamName = team.name;
+        isNew = true;
+      }
+
+      // Update rank styling classes
+      tr.classList.remove('rank-1', 'rank-2', 'rank-3', 'rank-4');
+      if (rank <= 4) {
         tr.classList.add(`rank-${rank}`);
       }
-      
-      // Check if score changed
+
+      // Check if score changed for this specific team
       const oldItem = currentRenderedStandings.find(item => item.name === team.name);
       if (oldItem && oldItem.score !== team.score) {
         tr.classList.add('score-updated');
       }
 
-      tr.innerHTML = `
-        <td class="col-rank"><span>${rank}</span></td>
-        <td class="col-team">${escapeHtml(team.name)}</td>
-        <td class="col-score">${team.score}</td>
-      `;
-      tbody.appendChild(tr);
-      newRowElements.push(tr);
+      // Update cell values directly to avoid HTML re-parsing flicker
+      const rankCellSpan = tr.querySelector('.col-rank span');
+      const scoreCell = tr.querySelector('.col-score');
+      
+      if (!isNew && rankCellSpan && scoreCell) {
+        if (rankCellSpan.textContent !== String(rank)) rankCellSpan.textContent = rank;
+        if (scoreCell.textContent !== String(team.score)) scoreCell.textContent = team.score;
+      } else {
+        tr.innerHTML = `
+          <td class="col-rank"><span>${rank}</span></td>
+          <td class="col-team">${escapeHtml(team.name)}</td>
+          <td class="col-score">${team.score}</td>
+        `;
+      }
+
+      tbody.appendChild(tr); // Appending existing node moves it in DOM without destroying it
+      activeRowElements.push(tr);
     });
 
-    // 3. INVERT: Measure new positions and apply transform offsets
+    // Remove any rows no longer in top N
+    existingRows.forEach(row => {
+      if (!activeRowElements.includes(row)) {
+        row.remove();
+      }
+    });
+
+    // 3. INVERT: Measure new positions and apply transform offsets ONLY to moving rows
     const lastPositions = {};
-    newRowElements.forEach(row => {
+    activeRowElements.forEach(row => {
       const name = row.dataset.teamName;
       if (name) {
         lastPositions[name] = row.getBoundingClientRect().top;
       }
     });
 
-    newRowElements.forEach(row => {
+    let hasMovingRows = false;
+    activeRowElements.forEach(row => {
       const name = row.dataset.teamName;
       const firstTop = firstPositions[name];
       const lastTop = lastPositions[name];
@@ -467,35 +513,44 @@ function renderStandings(standings, maxTeams = 6) {
       if (firstTop !== undefined && lastTop !== undefined) {
         const deltaY = firstTop - lastTop;
         if (deltaY !== 0) {
-          row.classList.add('rank-swapping');
+          hasMovingRows = true;
+          row.classList.add('rank-row-animating');
           row.style.transform = `translateY(${deltaY}px)`;
           row.style.transition = 'none';
         }
       } else {
-        // Entering row
+        // Brand new entering row
+        hasMovingRows = true;
+        row.classList.add('rank-row-animating');
         row.style.opacity = '0';
         row.style.transform = 'translateY(15px)';
       }
     });
 
-    // Force browser layout reflow
-    void tbody.offsetHeight;
+    if (hasMovingRows) {
+      void tbody.offsetHeight; // Force layout reflow
 
-    // 4. PLAY: Animate smoothly to natural position
-    requestAnimationFrame(() => {
-      newRowElements.forEach(row => {
-        row.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease';
-        row.style.transform = '';
-        row.style.opacity = '';
+      requestAnimationFrame(() => {
+        activeRowElements.forEach(row => {
+          if (row.style.transform || row.style.opacity) {
+            row.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease';
+            row.style.transform = '';
+            row.style.opacity = '';
+          }
+        });
       });
-    });
 
-    setTimeout(() => {
-      newRowElements.forEach(row => {
-        row.classList.remove('rank-swapping', 'score-updated', 'rank-row-animating');
-        row.style.transition = '';
+      setTimeout(() => {
+        activeRowElements.forEach(row => {
+          row.classList.remove('score-updated', 'rank-row-animating');
+          row.style.transition = '';
+        });
+      }, 700);
+    } else {
+      activeRowElements.forEach(row => {
+        row.classList.remove('score-updated', 'rank-row-animating');
       });
-    }, 700);
+    }
 
     currentRenderedStandings = newSorted;
   }
@@ -512,10 +567,30 @@ async function loadScoreboard() {
   const isFinalPage = !!document.getElementById('view-jeopardy');
   const maxTeams = isFinalPage ? CONFIG.maxTeamsFinal : CONFIG.maxTeamsPrelim;
   
-  // Prioritize Apps Script URL if configured, otherwise fallback to CSV
-  const appsScriptUrl = CONFIG.appsScriptUrl || (isFinalPage ? CONFIG.finalAppsScriptUrl : CONFIG.prelimAppsScriptUrl);
-  const csvUrl = CONFIG.googleSheetCsvUrl || (isFinalPage ? CONFIG.finalSheetCsvUrl : CONFIG.prelimSheetCsvUrl);
-  const targetUrl = appsScriptUrl || csvUrl;
+  // Resolve target URL (supporting Apps Script Web App with sheet tab parameter)
+  let targetUrl = '';
+  
+  if (isFinalPage) {
+    if (CONFIG.finalAppsScriptUrl) {
+      targetUrl = CONFIG.finalAppsScriptUrl;
+    } else if (CONFIG.appsScriptUrl) {
+      targetUrl = CONFIG.appsScriptUrl.includes('sheet=') 
+        ? CONFIG.appsScriptUrl 
+        : `${CONFIG.appsScriptUrl}${CONFIG.appsScriptUrl.includes('?') ? '&' : '?'}sheet=Final_Score`;
+    } else {
+      targetUrl = CONFIG.googleSheetCsvUrl || CONFIG.finalSheetCsvUrl;
+    }
+  } else {
+    if (CONFIG.prelimAppsScriptUrl) {
+      targetUrl = CONFIG.prelimAppsScriptUrl;
+    } else if (CONFIG.appsScriptUrl) {
+      targetUrl = CONFIG.appsScriptUrl.includes('sheet=') 
+        ? CONFIG.appsScriptUrl 
+        : `${CONFIG.appsScriptUrl}${CONFIG.appsScriptUrl.includes('?') ? '&' : '?'}sheet=Prelim_Score`;
+    } else {
+      targetUrl = CONFIG.googleSheetCsvUrl || CONFIG.prelimSheetCsvUrl;
+    }
+  }
   
   // If no URL is set and we have no stored standings, load mock data
   if (!targetUrl) {
@@ -703,6 +778,15 @@ window.addEventListener('keydown', (e) => {
       } else if (activeView === 'question') {
         e.preventDefault();
         resetModalTimer();
+      }
+      break;
+      
+    case 'a':
+      e.preventDefault();
+      CONFIG.showFinalQuestionAuthors = !CONFIG.showFinalQuestionAuthors;
+      const authorCard = document.querySelector('.author-card');
+      if (authorCard) {
+        authorCard.style.display = CONFIG.showFinalQuestionAuthors ? 'flex' : 'none';
       }
       break;
   }
@@ -991,6 +1075,11 @@ function openQuestionModal(card) {
   
   const authorEl = document.getElementById('modal-q-author');
   if (authorEl) authorEl.textContent = authorName;
+
+  const authorCard = document.querySelector('.author-card');
+  if (authorCard) {
+    authorCard.style.display = CONFIG.showFinalQuestionAuthors ? 'flex' : 'none';
+  }
   
   resetModalTimer();
   switchView('question');

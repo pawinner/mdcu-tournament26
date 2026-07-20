@@ -796,6 +796,21 @@ tr.rank-3 .col-score {
   color: #d97706;
 }
 
+tr.rank-4 {
+  background: linear-gradient(90deg, rgba(14, 116, 144, 0.04) 0%, transparent 100%);
+}
+tr.rank-4 .col-rank span {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #0e7490;
+  color: #e0f2fe;
+  border-radius: 4px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+tr.rank-4 .col-score {
+  color: #7dd3fc;
+}
+
 .scoreboard-footer {
   width: 100%;
   display: flex;

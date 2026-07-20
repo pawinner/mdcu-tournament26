@@ -16,8 +16,8 @@
  * 10. Paste the Web App URL into app.js under CONFIG.appsScriptUrl (or prelimAppsScriptUrl / finalAppsScriptUrl).
  * 
  * OPTIONAL QUERY PARAMETERS:
- * - ?sheet=Prelim   => Reads from sheet tab named "Prelim" (or "Preliminary")
- * - ?sheet=Final    => Reads from sheet tab named "Final"
+ * - ?sheet=Prelim_Score => Reads from sheet tab named "Prelim_Score" (or "Prelim")
+ * - ?sheet=Final_Score  => Reads from sheet tab named "Final_Score" (or "Final")
  * If no ?sheet param is provided, it automatically reads the first sheet tab.
  */
 
@@ -31,7 +31,7 @@ function doGet(e) {
       sheet = ss.getSheetByName(sheetName);
     }
     
-    // Fallback: try common aliases or default to the first sheet tab
+    // Fallback: try common aliases (e.g., "Final Round", "Final Standings", "รอบไฟนอล")
     if (!sheet && sheetName) {
       var lowerTarget = sheetName.toLowerCase();
       var sheets = ss.getSheets();
@@ -44,8 +44,14 @@ function doGet(e) {
       }
     }
 
+    // Secondary Fallback: If requesting "Final" and tab name differed, pick 2nd tab (index 1) if present
     if (!sheet) {
-      sheet = ss.getSheets()[0];
+      var allSheets = ss.getSheets();
+      if (sheetName && sheetName.toLowerCase().indexOf('final') !== -1 && allSheets.length > 1) {
+        sheet = allSheets[1];
+      } else {
+        sheet = allSheets[0];
+      }
     }
 
     var data = sheet.getDataRange().getValues();
