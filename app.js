@@ -408,6 +408,8 @@ function renderStandings(standings, maxTeams = 6) {
     return;
   }
 
+  const isFinalPage = !!document.getElementById('view-jeopardy');
+  const maxColoredRank = isFinalPage ? 3 : 4;
   const isInitialRender = existingRows.length === 0 || currentRenderedStandings.length === 0;
   
   if (isInitialRender) {
@@ -417,7 +419,7 @@ function renderStandings(standings, maxTeams = 6) {
       const tr = document.createElement('tr');
       tr.dataset.teamName = team.name;
       
-      if (rank <= 4) {
+      if (rank <= maxColoredRank) {
         tr.className = `rank-${rank}`;
       }
       
@@ -459,7 +461,7 @@ function renderStandings(standings, maxTeams = 6) {
 
       // Update rank styling classes
       tr.classList.remove('rank-1', 'rank-2', 'rank-3', 'rank-4');
-      if (rank <= 4) {
+      if (rank <= maxColoredRank) {
         tr.classList.add(`rank-${rank}`);
       }
 
