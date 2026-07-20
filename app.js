@@ -52,7 +52,12 @@ if (progressRingBar) {
  * ------------------------------------------------------------- */
 
 function initAudio() {
-  if (audioCtx) return;
+  if (audioCtx) {
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return;
+  }
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const indicator = document.getElementById('audio-indicator');
   if (indicator) {
@@ -166,6 +171,12 @@ function switchView(viewName) {
   if (activeView === 'countdown') {
     pauseTimer();
   }
+  if (activeView === 'countdown-20') {
+    pauseTimer20();
+  }
+  if (activeView === 'countdown-30') {
+    pauseTimer30();
+  }
   if (activeView === 'question') {
     pauseModalTimer();
   }
@@ -182,8 +193,9 @@ function switchView(viewName) {
   // Update top-left navigation button text dynamically based on active view
   const navBackText = document.getElementById('nav-back-text');
   if (navBackText) {
-    if (activeView === 'question' || activeView === 'scoreboard') {
-      navBackText.textContent = 'Jeopardy Board';
+    if (activeView === 'question' || activeView === 'scoreboard' || activeView === 'countdown-20' || activeView === 'countdown-30') {
+      const isFinalPage = !!document.getElementById('view-jeopardy');
+      navBackText.textContent = isFinalPage ? 'Jeopardy Board' : 'Home Portal';
     } else if (activeView === 'jeopardy') {
       navBackText.textContent = 'Landing Page';
     } else {
@@ -224,6 +236,7 @@ function startTimer() {
   initAudio();
   if (isTimerRunning) return;
   
+  playTick(Math.ceil(timeLeft) <= 5);
   isTimerRunning = true;
   const viewEl = document.getElementById('view-countdown');
   if (viewEl) {
@@ -719,9 +732,38 @@ window.addEventListener('keydown', (e) => {
   // Hotkey mapping
   switch (e.key.toLowerCase()) {
     case '1':
-      // Prevent default page scroll etc.
       e.preventDefault();
-      triggerTimerFlow();
+      if (activeView === 'countdown-20') {
+        if (isTimer20Running) pauseTimer20(); else if (time20Left > 0) startTimer20();
+      } else if (activeView === 'countdown-30') {
+        toggleTimer30();
+      } else {
+        triggerTimerFlow();
+      }
+      break;
+
+    case '2':
+      e.preventDefault();
+      if (activeView !== 'countdown-20') {
+        switchView('countdown-20');
+        resetTimer20();
+      } else {
+        if (isTimer20Running) {
+          pauseTimer20();
+        } else if (time20Left > 0) {
+          startTimer20();
+        }
+      }
+      break;
+
+    case '3':
+      e.preventDefault();
+      if (activeView !== 'countdown-30') {
+        switchView('countdown-30');
+        resetTimer30();
+      } else {
+        toggleTimer30();
+      }
       break;
       
     case 's':
@@ -742,8 +784,10 @@ window.addEventListener('keydown', (e) => {
       break;
       
     case 'escape':
-      if (activeView === 'question') {
+      if (activeView === 'question' || activeView === 'countdown-20' || activeView === 'countdown-30') {
         e.preventDefault();
+        if (activeView === 'countdown-20') resetTimer20();
+        if (activeView === 'countdown-30') resetTimer30();
         switchView('jeopardy');
       } else if (activeView === 'scoreboard') {
         e.preventDefault();
@@ -767,6 +811,16 @@ window.addEventListener('keydown', (e) => {
         } else if (timeLeft > 0) {
           startTimer();
         }
+      } else if (activeView === 'countdown-20') {
+        e.preventDefault();
+        if (isTimer20Running) {
+          pauseTimer20();
+        } else if (time20Left > 0) {
+          startTimer20();
+        }
+      } else if (activeView === 'countdown-30') {
+        e.preventDefault();
+        toggleTimer30();
       } else if (activeView === 'question') {
         e.preventDefault();
         toggleModalTimer();
@@ -777,6 +831,12 @@ window.addEventListener('keydown', (e) => {
       if (activeView === 'countdown') {
         e.preventDefault();
         resetTimer();
+      } else if (activeView === 'countdown-20') {
+        e.preventDefault();
+        resetTimer20();
+      } else if (activeView === 'countdown-30') {
+        e.preventDefault();
+        resetTimer30();
       } else if (activeView === 'question') {
         e.preventDefault();
         resetModalTimer();
@@ -819,7 +879,7 @@ window.addEventListener('click', () => {
 const navBackBtn = document.getElementById('nav-back-btn');
 if (navBackBtn) {
   navBackBtn.addEventListener('click', (e) => {
-    if (activeView === 'question' || activeView === 'scoreboard') {
+    if (activeView === 'question' || activeView === 'scoreboard' || activeView === 'countdown-20' || activeView === 'countdown-30') {
       e.preventDefault();
       initAudio();
       playChime();
@@ -967,6 +1027,7 @@ function startModalTimer() {
     currentQuestionCard.classList.add('clicked');
   }
   
+  playTick(Math.ceil(modalTimeLeft) <= 5);
   isModalTimerRunning = true;
   
   const statusEl = document.getElementById('modal-timer-status');
@@ -1174,6 +1235,383 @@ const modalTimerStealBtn = document.getElementById('modal-timer-steal-btn');
 if (modalTimerStealBtn) {
   modalTimerStealBtn.addEventListener('click', () => {
     startStealTimer();
+  });
+}
+
+/* -------------------------------------------------------------
+ * Full-Page 20s Red Tie-Break Countdown Timer (Key 2)
+ * ------------------------------------------------------------- */
+let timer20Duration = 20;
+let time20Left = 20;
+let isTimer20Running = false;
+let startTime20 = null;
+let pauseTimeElapsed20 = 0;
+let animationFrameId20 = null;
+
+const bar20 = document.getElementById('ring-bar-20');
+if (bar20) {
+  bar20.style.strokeDasharray = `${PROGRESS_CIRCUMFERENCE} ${PROGRESS_CIRCUMFERENCE}`;
+  bar20.style.strokeDashoffset = 0;
+}
+
+function setProgress20(percent) {
+  const bar = document.getElementById('ring-bar-20');
+  if (!bar) return;
+  const offset = PROGRESS_CIRCUMFERENCE * (1 - percent);
+  bar.style.strokeDashoffset = offset;
+}
+
+function updateTimer20UI() {
+  const displayVal = Math.ceil(time20Left);
+  const digitsEl = document.getElementById('timer-digits-20');
+  if (digitsEl) {
+    digitsEl.textContent = displayVal < 10 ? `0${displayVal}` : displayVal;
+  }
+  const percent = time20Left / timer20Duration;
+  setProgress20(percent);
+}
+
+function startTimer20() {
+  initAudio();
+  if (isTimer20Running) return;
+  
+  playTick(Math.ceil(time20Left) <= 5);
+  isTimer20Running = true;
+  const viewEl = document.getElementById('view-countdown-20');
+  if (viewEl) {
+    viewEl.classList.remove('timer-paused', 'timer-finished');
+    viewEl.classList.add('timer-running');
+  }
+  const statusEl = document.getElementById('timer-status-20');
+  if (statusEl) statusEl.textContent = 'Tie-Break';
+  
+  startTime20 = performance.now() - (pauseTimeElapsed20 * 1000);
+  
+  function tick20() {
+    if (!isTimer20Running) return;
+    
+    const now = performance.now();
+    const elapsed = (now - startTime20) / 1000;
+    const currentLeft = Math.max(0, timer20Duration - elapsed);
+    
+    const currentInt = Math.ceil(currentLeft);
+    const lastInt = Math.ceil(time20Left);
+    
+    time20Left = currentLeft;
+    updateTimer20UI();
+    
+    if (currentInt < lastInt && currentInt > 0) {
+      playTick(currentInt <= 5);
+    }
+    
+    if (currentLeft <= 5 && currentLeft > 0 && viewEl) {
+      viewEl.classList.add('timer-warning');
+    }
+    
+    if (currentLeft <= 0) {
+      finishTimer20();
+    } else {
+      animationFrameId20 = requestAnimationFrame(tick20);
+    }
+  }
+  
+  animationFrameId20 = requestAnimationFrame(tick20);
+}
+
+function pauseTimer20() {
+  if (!isTimer20Running) return;
+  
+  isTimer20Running = false;
+  cancelAnimationFrame(animationFrameId20);
+  
+  pauseTimeElapsed20 = timer20Duration - time20Left;
+  
+  const viewEl = document.getElementById('view-countdown-20');
+  if (viewEl) {
+    viewEl.classList.remove('timer-running');
+    viewEl.classList.add('timer-paused');
+  }
+  const statusEl = document.getElementById('timer-status-20');
+  if (statusEl) statusEl.textContent = 'PAUSED';
+}
+
+function resetTimer20() {
+  isTimer20Running = false;
+  cancelAnimationFrame(animationFrameId20);
+  
+  time20Left = timer20Duration;
+  pauseTimeElapsed20 = 0;
+  
+  const viewEl = document.getElementById('view-countdown-20');
+  if (viewEl) {
+    viewEl.classList.remove('timer-running', 'timer-paused', 'timer-finished', 'timer-warning');
+  }
+  const statusEl = document.getElementById('timer-status-20');
+  if (statusEl) statusEl.textContent = 'READY';
+  
+  updateTimer20UI();
+}
+
+function finishTimer20() {
+  isTimer20Running = false;
+  time20Left = 0;
+  cancelAnimationFrame(animationFrameId20);
+  
+  const viewEl = document.getElementById('view-countdown-20');
+  if (viewEl) {
+    viewEl.classList.remove('timer-running', 'timer-warning');
+    viewEl.classList.add('timer-finished');
+  }
+  
+  const digitsEl = document.getElementById('timer-digits-20');
+  if (digitsEl) digitsEl.textContent = '00';
+  
+  const statusEl = document.getElementById('timer-status-20');
+  if (statusEl) statusEl.textContent = 'TIME UP';
+  setProgress20(0);
+  playBuzzer();
+}
+
+/* -------------------------------------------------------------
+ * Full-Page 30s Countdown Timer with Steal (Key 3)
+ * ------------------------------------------------------------- */
+let timer30Duration = 30;
+let time30Left = 30;
+let isTimer30Running = false;
+let isStealMode30 = false;
+let startTime30 = null;
+let pauseTimeElapsed30 = 0;
+let animationFrameId30 = null;
+
+const bar30 = document.getElementById('ring-bar-30');
+if (bar30) {
+  bar30.style.strokeDasharray = `${PROGRESS_CIRCUMFERENCE} ${PROGRESS_CIRCUMFERENCE}`;
+  bar30.style.strokeDashoffset = 0;
+}
+
+function setProgress30(percent) {
+  const bar = document.getElementById('ring-bar-30');
+  if (!bar) return;
+  const offset = PROGRESS_CIRCUMFERENCE * (1 - percent);
+  bar.style.strokeDashoffset = offset;
+}
+
+function updateTimer30UI() {
+  const displayVal = Math.ceil(time30Left);
+  const digitsEl = document.getElementById('timer-digits-30');
+  if (digitsEl) {
+    digitsEl.textContent = displayVal < 10 ? `0${displayVal}` : displayVal;
+  }
+  const percent = time30Left / timer30Duration;
+  setProgress30(percent);
+}
+
+function resetTimer30() {
+  isTimer30Running = false;
+  cancelAnimationFrame(animationFrameId30);
+  isStealMode30 = false;
+  timer30Duration = 30;
+  time30Left = timer30Duration;
+  pauseTimeElapsed30 = 0;
+  
+  const statusEl = document.getElementById('timer-status-30');
+  if (statusEl) {
+    statusEl.textContent = 'READY';
+    statusEl.style.color = 'var(--neon-cyan)';
+    statusEl.style.borderColor = 'rgba(0, 255, 210, 0.25)';
+  }
+  
+  const btnText = document.getElementById('full30-timer-toggle-text');
+  if (btnText) btnText.textContent = 'START TIMER';
+  
+  const digitsEl = document.getElementById('timer-digits-30');
+  if (digitsEl) {
+    digitsEl.style.color = '#ffffff';
+    digitsEl.style.textShadow = '0 0 25px var(--neon-cyan-glow)';
+  }
+
+  const ringBar = document.getElementById('ring-bar-30');
+  if (ringBar) {
+    ringBar.setAttribute('stroke', 'url(#full30-cyan-gradient)');
+    ringBar.style.filter = 'drop-shadow(0 0 14px var(--neon-cyan-glow))';
+  }
+  
+  updateTimer30UI();
+}
+
+function startTimer30() {
+  initAudio();
+  if (isTimer30Running) return;
+  
+  playTick(Math.ceil(time30Left) <= 5);
+  isTimer30Running = true;
+  
+  const statusEl = document.getElementById('timer-status-30');
+  if (statusEl) {
+    if (isStealMode30) {
+      statusEl.textContent = 'STEAL';
+      statusEl.style.color = '#f97316';
+      statusEl.style.borderColor = 'rgba(249, 115, 22, 0.35)';
+    } else {
+      statusEl.textContent = 'RUNNING';
+      statusEl.style.color = 'var(--neon-green)';
+      statusEl.style.borderColor = 'rgba(0, 255, 102, 0.3)';
+    }
+  }
+
+  const ringBar = document.getElementById('ring-bar-30');
+  if (ringBar) {
+    if (isStealMode30) {
+      ringBar.setAttribute('stroke', 'url(#full30-orange-gradient)');
+      ringBar.style.filter = 'drop-shadow(0 0 14px rgba(249, 115, 22, 0.6))';
+    } else {
+      ringBar.setAttribute('stroke', 'url(#full30-cyan-gradient)');
+      ringBar.style.filter = 'drop-shadow(0 0 14px var(--neon-cyan-glow))';
+    }
+  }
+  
+  const btnText = document.getElementById('full30-timer-toggle-text');
+  if (btnText) btnText.textContent = 'PAUSE TIMER';
+  
+  startTime30 = performance.now() - (pauseTimeElapsed30 * 1000);
+  
+  function tick30() {
+    if (!isTimer30Running) return;
+    
+    const now = performance.now();
+    const elapsed = (now - startTime30) / 1000;
+    const currentLeft = Math.max(0, timer30Duration - elapsed);
+    
+    const currentInt = Math.ceil(currentLeft);
+    const lastInt = Math.ceil(time30Left);
+    
+    time30Left = currentLeft;
+    updateTimer30UI();
+    
+    if (currentInt < lastInt && currentInt > 0) {
+      playTick(currentInt <= 5);
+    }
+    
+    const digitsEl = document.getElementById('timer-digits-30');
+    if (currentLeft <= 5 && currentLeft > 0 && digitsEl) {
+      digitsEl.style.color = 'var(--neon-pink)';
+      digitsEl.style.textShadow = '0 0 25px var(--neon-pink)';
+    } else if (currentLeft > 5 && digitsEl) {
+      if (isStealMode30) {
+        digitsEl.style.color = '#ffffff';
+        digitsEl.style.textShadow = '0 0 25px rgba(249, 115, 22, 0.6)';
+      } else {
+        digitsEl.style.color = '#ffffff';
+        digitsEl.style.textShadow = '0 0 25px var(--neon-cyan-glow)';
+      }
+    }
+    
+    if (currentLeft <= 0) {
+      finishTimer30();
+    } else {
+      animationFrameId30 = requestAnimationFrame(tick30);
+    }
+  }
+  
+  animationFrameId30 = requestAnimationFrame(tick30);
+}
+
+function startStealTimer30() {
+  isTimer30Running = false;
+  cancelAnimationFrame(animationFrameId30);
+  
+  isStealMode30 = true;
+  timer30Duration = 20;
+  time30Left = 20;
+  pauseTimeElapsed30 = 0;
+  
+  const digitsEl = document.getElementById('timer-digits-30');
+  if (digitsEl) {
+    digitsEl.style.color = '#ffffff';
+    digitsEl.style.textShadow = '0 0 25px rgba(249, 115, 22, 0.6)';
+  }
+
+  const ringBar = document.getElementById('ring-bar-30');
+  if (ringBar) {
+    ringBar.setAttribute('stroke', 'url(#full30-orange-gradient)');
+    ringBar.style.filter = 'drop-shadow(0 0 14px rgba(249, 115, 22, 0.6))';
+  }
+  
+  updateTimer30UI();
+  startTimer30();
+}
+
+function pauseTimer30() {
+  if (!isTimer30Running) return;
+  
+  isTimer30Running = false;
+  cancelAnimationFrame(animationFrameId30);
+  pauseTimeElapsed30 = timer30Duration - time30Left;
+  
+  const statusEl = document.getElementById('timer-status-30');
+  if (statusEl) {
+    statusEl.textContent = 'PAUSED';
+    statusEl.style.color = '#eab308';
+    statusEl.style.borderColor = 'rgba(234, 179, 8, 0.3)';
+  }
+  
+  const btnText = document.getElementById('full30-timer-toggle-text');
+  if (btnText) btnText.textContent = 'RESUME TIMER';
+}
+
+function toggleTimer30() {
+  if (isTimer30Running) {
+    pauseTimer30();
+  } else if (time30Left > 0) {
+    startTimer30();
+  }
+}
+
+function finishTimer30() {
+  isTimer30Running = false;
+  time30Left = 0;
+  cancelAnimationFrame(animationFrameId30);
+  
+  const digitsEl = document.getElementById('timer-digits-30');
+  if (digitsEl) {
+    digitsEl.textContent = '00';
+    digitsEl.style.color = '#ff0033';
+    digitsEl.style.textShadow = '0 0 30px #ff0033';
+  }
+  
+  const statusEl = document.getElementById('timer-status-30');
+  if (statusEl) {
+    statusEl.textContent = 'TIME UP';
+    statusEl.style.color = '#ff0033';
+    statusEl.style.borderColor = 'rgba(255, 0, 51, 0.3)';
+  }
+  
+  const btnText = document.getElementById('full30-timer-toggle-text');
+  if (btnText) btnText.textContent = 'START TIMER';
+  
+  setProgress30(0);
+  playBuzzer();
+}
+
+// Full 30s Timer Control Handlers
+const full30TimerToggleBtn = document.getElementById('full30-timer-toggle-btn');
+if (full30TimerToggleBtn) {
+  full30TimerToggleBtn.addEventListener('click', () => {
+    toggleTimer30();
+  });
+}
+
+const full30TimerResetBtn = document.getElementById('full30-timer-reset-btn');
+if (full30TimerResetBtn) {
+  full30TimerResetBtn.addEventListener('click', () => {
+    resetTimer30();
+  });
+}
+
+const full30TimerStealBtn = document.getElementById('full30-timer-steal-btn');
+if (full30TimerStealBtn) {
+  full30TimerStealBtn.addEventListener('click', () => {
+    startStealTimer30();
   });
 }
 

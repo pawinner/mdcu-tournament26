@@ -643,6 +643,56 @@ html, body {
   box-shadow: 0 0 15px rgba(255, 0, 51, 0.2);
 }
 
+/* Red Tie-Break Countdown Theme (Key 2) */
+.tiebreak-theme .view-header {
+  background: linear-gradient(90deg, #ff0055, #ff3366, #ffffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 14px rgba(255, 0, 85, 0.4));
+}
+
+.tiebreak-theme .view-subheader {
+  color: #ff3366;
+  text-shadow: 0 0 10px rgba(255, 0, 85, 0.4);
+}
+
+.tiebreak-digits {
+  color: #ffffff;
+  text-shadow: 
+    0 0 20px rgba(255, 255, 255, 0.2),
+    0 0 40px #ff0055;
+}
+
+.timer-running .tiebreak-digits {
+  text-shadow: 
+    0 0 25px rgba(255, 255, 255, 0.2),
+    0 0 50px #ff0055;
+}
+
+#ring-bar-20 {
+  filter: drop-shadow(0 0 14px #ff0055);
+}
+
+.tiebreak-status {
+  color: #ff0055;
+  background: rgba(255, 0, 85, 0.08);
+  border: 1.5px solid rgba(255, 0, 85, 0.3);
+  box-shadow: 0 0 12px rgba(255, 0, 85, 0.15);
+}
+
+.timer-running .tiebreak-status {
+  color: #ff0055;
+  background: rgba(255, 0, 85, 0.15);
+  border-color: rgba(255, 0, 85, 0.5);
+  box-shadow: 0 0 20px rgba(255, 0, 85, 0.35);
+}
+
+.full-page-controls {
+  margin-top: 25px;
+  max-width: 380px;
+  width: 100%;
+}
+
 /* -------------------------------------------------------------
  * VIEW 3: SCOREBOARD
  * ------------------------------------------------------------- */
@@ -1540,6 +1590,7 @@ tr.rank-4 .col-score {
   cursor: pointer;
   transition: all 0.3s ease;
   border: 1px solid transparent;
+  white-space: nowrap;
 }
 
 .btn-start {

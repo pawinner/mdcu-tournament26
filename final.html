@@ -272,7 +272,89 @@
       </div>
     </section>
 
-    <!-- VIEW 4: SCOREBOARD -->
+    <!-- VIEW 4: 20s RED TIE-BREAK COUNTDOWN TIMER (KEY 2) -->
+    <section id="view-countdown-20" class="view">
+      <div class="countdown-content tiebreak-theme">
+        <h2 class="view-header tiebreak-header">FINAL ROUND</h2>
+        <h3 class="view-subheader tiebreak-subheader">TIE-BREAK QUESTION</h3>
+        
+        <div class="timer-display-container tiebreak-container">
+          <!-- Circular Progress Ring -->
+          <svg class="progress-ring" width="400" height="400">
+            <circle class="progress-ring-bg" stroke="rgba(255, 255, 255, 0.08)" stroke-width="12" fill="rgba(2, 8, 14, 0.25)" r="180" cx="200" cy="200" />
+            <circle class="progress-ring-bar" id="ring-bar-20" stroke="url(#red-gradient)" stroke-width="16" stroke-linecap="round" fill="transparent" r="180" cx="200" cy="200" />
+            <defs>
+              <linearGradient id="red-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ff0055" />
+                <stop offset="100%" stop-color="#ff0033" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <!-- Big Numbers -->
+          <div class="timer-digits tiebreak-digits" id="timer-digits-20">20</div>
+        </div>
+
+        <div class="timer-status tiebreak-status" id="timer-status-20">READY</div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: 30s FULL-PAGE COUNTDOWN TIMER WITH STEAL (KEY 3) -->
+    <section id="view-countdown-30" class="view">
+      <div class="countdown-content full-question-timer-content">
+        <h2 class="view-header">FINAL ROUND</h2>
+        <h3 class="view-subheader">FINAL QUESTION TIMER</h3>
+        
+        <div class="timer-display-container">
+          <!-- Circular Progress Ring -->
+          <svg class="progress-ring" width="400" height="400">
+            <circle class="progress-ring-bg" stroke="rgba(255, 255, 255, 0.08)" stroke-width="12" fill="rgba(2, 8, 14, 0.25)" r="180" cx="200" cy="200" />
+            <circle class="progress-ring-bar" id="ring-bar-30" stroke="url(#full30-cyan-gradient)" stroke-width="16" stroke-linecap="round" fill="transparent" r="180" cx="200" cy="200" />
+            <defs>
+              <linearGradient id="full30-cyan-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00ffd2" />
+                <stop offset="100%" stop-color="#00e5ff" />
+              </linearGradient>
+              <linearGradient id="full30-orange-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ff9900" />
+                <stop offset="100%" stop-color="#f97316" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <!-- Big Numbers -->
+          <div class="timer-digits" id="timer-digits-30">30</div>
+        </div>
+
+        <div class="timer-status" id="timer-status-30">READY</div>
+
+        <!-- Timer Control Buttons -->
+        <div class="modal-timer-controls full-page-controls">
+          <div class="modal-timer-controls-row">
+            <button class="timer-btn btn-start" id="full30-timer-toggle-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span id="full30-timer-toggle-text">START TIMER</span>
+            </button>
+            <button class="timer-btn btn-reset" id="full30-timer-reset-btn" title="Reset Timer">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 4v6h-6"></path>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              <span>RESET</span>
+            </button>
+          </div>
+          <button class="timer-btn btn-steal" id="full30-timer-steal-btn" title="Steal Question (20s Timer)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span>STEAL</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- VIEW 6: SCOREBOARD -->
     <section id="view-scoreboard" class="view">
       <div class="scoreboard-content">
         <h2 class="view-header">FINAL ROUND</h2>
