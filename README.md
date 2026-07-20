@@ -51,10 +51,11 @@ All views, navigation, and timing controls can be managed seamlessly via keyboar
   - **Basic Medical Science**: No. 1 (100 pts), No. 2 (200 pts), No. 3 (200 pts), No. 4 (250 pts)
   - **Clinical Science**: No. 1 (100 pts), No. 2 (200 pts), No. 3 (200 pts), No. 4 (250 pts)
   - **MDCU**: No. 1 (100 pts), No. 2 (200 pts), No. 3 (200 pts), No. 4 (250 pts)
-- **Question Detail & 30s Timer**:
+- **Question Detail & Timer**:
   - Displays category, question item number, point value, and question author (*อาจารย์ผู้ออกข้อสอบ*).
   - Authors are loaded dynamically from the `Final_Questions` sheet tab.
-  - Interactive 30-second countdown timer with circular ring visualizer.
+  - Interactive 30-second main countdown timer with circular ring visualizer.
+  - Dedicated **Steal** button (in neon orange) underneath the start/reset controls, launching a 20-second steal countdown at full clock with an orange visual theme.
   - Selected cards dim after timer start to indicate played items.
 - **Leaderboard**: Displays the **Top 4 finalist teams**.
 

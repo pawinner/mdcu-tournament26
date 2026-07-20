@@ -233,6 +233,10 @@
                   <stop offset="0%" stop-color="#00ffd2" />
                   <stop offset="100%" stop-color="#00e5ff" />
                 </linearGradient>
+                <linearGradient id="modal-orange-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ff9900" />
+                  <stop offset="100%" stop-color="#f97316" />
+                </linearGradient>
               </defs>
             </svg>
             <div class="modal-timer-digits" id="modal-timer-digits">30</div>
@@ -241,18 +245,26 @@
           <div class="modal-timer-status" id="modal-timer-status">READY</div>
 
           <div class="modal-timer-controls">
-            <button class="timer-btn btn-start" id="modal-timer-toggle-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-              </svg>
-              <span id="modal-timer-toggle-text">START TIMER</span>
-            </button>
-            <button class="timer-btn btn-reset" id="modal-timer-reset-btn" title="Reset Timer">
+            <div class="modal-timer-controls-row">
+              <button class="timer-btn btn-start" id="modal-timer-toggle-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <span id="modal-timer-toggle-text">START TIMER</span>
+              </button>
+              <button class="timer-btn btn-reset" id="modal-timer-reset-btn" title="Reset Timer">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 4v6h-6"></path>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+                <span>RESET</span>
+              </button>
+            </div>
+            <button class="timer-btn btn-steal" id="modal-timer-steal-btn" title="Steal Question (20s Timer)">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M23 4v6h-6"></path>
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
               </svg>
-              <span>RESET</span>
+              <span>STEAL</span>
             </button>
           </div>
         </div>

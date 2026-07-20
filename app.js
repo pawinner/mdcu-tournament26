@@ -867,6 +867,7 @@ let currentQuestionCard = null;
 let modalTimerDuration = 30;
 let modalTimeLeft = 30;
 let isModalTimerRunning = false;
+let isStealMode = false;
 let modalStartTime = null;
 let modalPauseTimeElapsed = 0;
 let modalAnimationFrameId = null;
@@ -927,6 +928,8 @@ function updateModalTimerUI() {
 function resetModalTimer() {
   isModalTimerRunning = false;
   cancelAnimationFrame(modalAnimationFrameId);
+  isStealMode = false;
+  modalTimerDuration = 30;
   modalTimeLeft = modalTimerDuration;
   modalPauseTimeElapsed = 0;
   
@@ -945,6 +948,12 @@ function resetModalTimer() {
     digitsEl.style.color = '#ffffff';
     digitsEl.style.textShadow = '0 0 25px var(--neon-cyan-glow)';
   }
+
+  const ringBar = document.getElementById('modal-ring-bar');
+  if (ringBar) {
+    ringBar.setAttribute('stroke', 'url(#modal-cyan-gradient)');
+    ringBar.style.filter = 'drop-shadow(0 0 14px var(--neon-cyan-glow))';
+  }
   
   updateModalTimerUI();
 }
@@ -962,9 +971,26 @@ function startModalTimer() {
   
   const statusEl = document.getElementById('modal-timer-status');
   if (statusEl) {
-    statusEl.textContent = 'RUNNING';
-    statusEl.style.color = 'var(--neon-green)';
-    statusEl.style.borderColor = 'rgba(0, 255, 102, 0.3)';
+    if (isStealMode) {
+      statusEl.textContent = 'STEAL';
+      statusEl.style.color = '#f97316';
+      statusEl.style.borderColor = 'rgba(249, 115, 22, 0.35)';
+    } else {
+      statusEl.textContent = 'RUNNING';
+      statusEl.style.color = 'var(--neon-green)';
+      statusEl.style.borderColor = 'rgba(0, 255, 102, 0.3)';
+    }
+  }
+
+  const ringBar = document.getElementById('modal-ring-bar');
+  if (ringBar) {
+    if (isStealMode) {
+      ringBar.setAttribute('stroke', 'url(#modal-orange-gradient)');
+      ringBar.style.filter = 'drop-shadow(0 0 14px rgba(249, 115, 22, 0.6))';
+    } else {
+      ringBar.setAttribute('stroke', 'url(#modal-cyan-gradient)');
+      ringBar.style.filter = 'drop-shadow(0 0 14px var(--neon-cyan-glow))';
+    }
   }
   
   const btnText = document.getElementById('modal-timer-toggle-text');
@@ -993,6 +1019,14 @@ function startModalTimer() {
     if (currentLeft <= 5 && currentLeft > 0 && digitsEl) {
       digitsEl.style.color = 'var(--neon-pink)';
       digitsEl.style.textShadow = '0 0 25px var(--neon-pink)';
+    } else if (currentLeft > 5 && digitsEl) {
+      if (isStealMode) {
+        digitsEl.style.color = '#ffffff';
+        digitsEl.style.textShadow = '0 0 25px rgba(249, 115, 22, 0.6)';
+      } else {
+        digitsEl.style.color = '#ffffff';
+        digitsEl.style.textShadow = '0 0 25px var(--neon-cyan-glow)';
+      }
     }
     
     if (currentLeft <= 0) {
@@ -1003,6 +1037,31 @@ function startModalTimer() {
   }
   
   modalAnimationFrameId = requestAnimationFrame(modalTick);
+}
+
+function startStealTimer() {
+  isModalTimerRunning = false;
+  cancelAnimationFrame(modalAnimationFrameId);
+  
+  isStealMode = true;
+  modalTimerDuration = 20;
+  modalTimeLeft = 20;
+  modalPauseTimeElapsed = 0;
+  
+  const digitsEl = document.getElementById('modal-timer-digits');
+  if (digitsEl) {
+    digitsEl.style.color = '#ffffff';
+    digitsEl.style.textShadow = '0 0 25px rgba(249, 115, 22, 0.6)';
+  }
+
+  const ringBar = document.getElementById('modal-ring-bar');
+  if (ringBar) {
+    ringBar.setAttribute('stroke', 'url(#modal-orange-gradient)');
+    ringBar.style.filter = 'drop-shadow(0 0 14px rgba(249, 115, 22, 0.6))';
+  }
+  
+  updateModalTimerUI();
+  startModalTimer();
 }
 
 function pauseModalTimer() {
@@ -1108,6 +1167,13 @@ const modalTimerResetBtn = document.getElementById('modal-timer-reset-btn');
 if (modalTimerResetBtn) {
   modalTimerResetBtn.addEventListener('click', () => {
     resetModalTimer();
+  });
+}
+
+const modalTimerStealBtn = document.getElementById('modal-timer-steal-btn');
+if (modalTimerStealBtn) {
+  modalTimerStealBtn.addEventListener('click', () => {
+    startStealTimer();
   });
 }
 
