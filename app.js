@@ -163,7 +163,7 @@ function playChime() {
 function switchView(viewName) {
   if (viewName === activeView) return;
   
-  if (activeView !== 'scoreboard') {
+  if (activeView !== 'scoreboard' && activeView !== 'eval') {
     lastNonScoreboardView = activeView;
   }
   
@@ -193,7 +193,7 @@ function switchView(viewName) {
   // Update top-left navigation button text dynamically based on active view
   const navBackText = document.getElementById('nav-back-text');
   if (navBackText) {
-    if (activeView === 'question' || activeView === 'scoreboard' || activeView === 'countdown-20' || activeView === 'countdown-30') {
+    if (activeView === 'question' || activeView === 'scoreboard' || activeView === 'countdown-20' || activeView === 'countdown-30' || activeView === 'eval') {
       const isFinalPage = !!document.getElementById('view-jeopardy');
       navBackText.textContent = isFinalPage ? 'Jeopardy Board' : 'Home Portal';
     } else if (activeView === 'jeopardy') {
@@ -778,17 +778,34 @@ window.addEventListener('keydown', (e) => {
       }
       break;
       
+    case 'e':
+      e.preventDefault();
+      if (activeView === 'eval') {
+        const isFinalPage = !!document.getElementById('view-jeopardy');
+        const fallbackView = isFinalPage ? 'jeopardy' : 'home';
+        switchView(lastNonScoreboardView || fallbackView);
+      } else {
+        lastNonScoreboardView = activeView;
+        switchView('eval');
+      }
+      break;
+      
     case 'h':
       e.preventDefault();
       switchView('home');
       break;
       
     case 'escape':
-      if (activeView === 'question' || activeView === 'countdown-20' || activeView === 'countdown-30') {
+      if (activeView === 'question' || activeView === 'countdown-20' || activeView === 'countdown-30' || activeView === 'eval') {
         e.preventDefault();
         if (activeView === 'countdown-20') resetTimer20();
         if (activeView === 'countdown-30') resetTimer30();
-        switchView('jeopardy');
+        const isFinalPage = !!document.getElementById('view-jeopardy');
+        if (isFinalPage) {
+          switchView('jeopardy');
+        } else {
+          switchView('home');
+        }
       } else if (activeView === 'scoreboard') {
         e.preventDefault();
         const isFinalPage = !!document.getElementById('view-jeopardy');
@@ -879,7 +896,7 @@ window.addEventListener('click', () => {
 const navBackBtn = document.getElementById('nav-back-btn');
 if (navBackBtn) {
   navBackBtn.addEventListener('click', (e) => {
-    if (activeView === 'question' || activeView === 'scoreboard' || activeView === 'countdown-20' || activeView === 'countdown-30') {
+    if (activeView === 'question' || activeView === 'scoreboard' || activeView === 'countdown-20' || activeView === 'countdown-30' || activeView === 'eval') {
       e.preventDefault();
       initAudio();
       playChime();

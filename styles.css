@@ -1652,5 +1652,69 @@ tr.rank-4 .col-score {
   }
 }
 
+/* -------------------------------------------------------------
+ * EVALUATION VIEW STYLING
+ * ------------------------------------------------------------- */
+.evaluation-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.qr-card-container {
+  position: relative;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.qr-card {
+  background: rgba(4, 19, 28, 0.75);
+  border: 2px solid rgba(0, 255, 210, 0.3);
+  border-radius: 24px;
+  padding: 30px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 255, 210, 0.1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.qr-card-glow {
+  position: absolute;
+  width: 105%;
+  height: 105%;
+  background: radial-gradient(circle, rgba(0, 255, 210, 0.25) 0%, transparent 70%);
+  filter: blur(15px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.qr-image {
+  width: 320px;
+  height: 320px;
+  border-radius: 12px;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.1));
+  display: block;
+}
+
+.qr-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 255, 210, 0.25);
+}
+
+@media (max-width: 600px) {
+  .qr-image {
+    width: 240px;
+    height: 240px;
+  }
+}
+
+
 
 
