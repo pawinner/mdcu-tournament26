@@ -737,6 +737,10 @@ window.addEventListener('keydown', (e) => {
         if (isTimer20Running) pauseTimer20(); else if (time20Left > 0) startTimer20();
       } else if (activeView === 'countdown-30') {
         toggleTimer30();
+      } else if (activeView === 'home' && document.getElementById('view-jeopardy')) {
+        initAudio();
+        playChime();
+        switchView('jeopardy');
       } else {
         triggerTimerFlow();
       }
